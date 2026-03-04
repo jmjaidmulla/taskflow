@@ -1,9 +1,19 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from database import init_db, get_connection
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    jwt_required,
+    get_jwt_identity
+)
 
 app = Flask(__name__)
 CORS(app)
+
+app.config["JWT_SECRET_KEY"] = "super-secret-key"  # change later in production
+jwt = JWTManager(app)
 
 # ------------------ GET ALL TASKS ------------------
 
@@ -52,13 +62,14 @@ def get_tasks():
     tasks = []
     for row in rows:
         tasks.append({
-            "id": row[0],
-            "title": row[1],
-            "description": row[2],
-            "category": row[3],
-            "priority": row[4],
-            "due_date": row[5],
-            "is_done": row[6]
+            "id": row["id"],
+            "title": row["title"],
+            "description": row["description"],
+            "category": row["category"],
+            "priority": row["priority"],
+            "due_date": row["due_date"],
+            "is_done": row["is_done"],
+            "user_id": row["user_id"]
         })
 
     conn.close()
@@ -71,21 +82,25 @@ def get_tasks():
 def add_task():
     data = request.json
 
-    if not data.get("title"):
-        return jsonify({"error": "Title required"}), 400
+    # 🔥 NEW: Get user_id
+    user_id = data.get("user_id")
+
+    if not data.get("title") or not user_id:
+        return jsonify({"error": "Title and user_id required"}), 400
 
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
-        INSERT INTO tasks (title, description, category, priority, due_date)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO tasks (title, description, category, priority, due_date, user_id)
+        VALUES (?, ?, ?, ?, ?, ?)
     """, (
         data["title"],
         data.get("description", ""),
-        data["category"],
-        data["priority"],
-        data["due_date"]
+        data.get("category"),
+        data.get("priority"),
+        data.get("due_date"),
+        user_id   # 🔥 NEW FIELD
     ))
 
     conn.commit()
@@ -208,6 +223,66 @@ def get_stats():
         "progress": progress
     })
 
+
+# ------------------ REGISTER ------------------
+
+@app.route("/api/register", methods=["POST"])
+def register():
+    data = request.json
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if not username or not password:
+        return jsonify({"error": "Username and password required"}), 400
+
+    hashed_password = generate_password_hash(password)
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            (username, hashed_password)
+        )
+        conn.commit()
+    except:
+        conn.close()
+        return jsonify({"error": "Username already exists"}), 400
+
+    conn.close()
+
+    return jsonify({"message": "User registered successfully"})
+
+
+# ------------------ LOGIN ------------------
+
+@app.route("/api/login", methods=["POST"])
+def login():
+    data = request.json
+
+    username = data.get("username")
+    password = data.get("password")
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM users WHERE username=?", (username,))
+    user = cursor.fetchone()
+    conn.close()
+
+    if user and check_password_hash(user["password"], password):
+
+        # 🔥 Create JWT token
+        access_token = create_access_token(identity=user["id"])
+
+        return jsonify({
+            "message": "Login successful",
+            "access_token": access_token
+        })
+
+    return jsonify({"error": "Invalid credentials"}), 401
 
 # ------------------ MAIN ------------------
 
