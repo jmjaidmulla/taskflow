@@ -11,6 +11,7 @@ CORS(app)
 def get_tasks():
     conn = get_connection()
     cursor = conn.cursor()
+    sort = request.args.get("sort")
 
     category = request.args.get("category")
     status = request.args.get("status")
@@ -35,6 +36,15 @@ def get_tasks():
     if search:
         query += " AND title LIKE ?"
         params.append(f"%{search}%")
+
+        # -------- SORTING --------
+    if sort == "due_date":
+        query += " ORDER BY due_date ASC"
+    elif sort == "priority":
+        query += " ORDER BY priority DESC"
+    elif sort == "newest":
+        query += " ORDER BY id DESC"
+
 
     cursor.execute(query, params)
     rows = cursor.fetchall()
@@ -151,6 +161,52 @@ def edit_task(id):
     conn.close()
 
     return jsonify({"message": "Task updated successfully"})
+
+
+# ------------------ STATS API ------------------
+
+@app.route("/api/stats", methods=["GET"])
+def get_stats():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    # Total tasks
+    cursor.execute("SELECT COUNT(*) FROM tasks")
+    total = cursor.fetchone()[0]
+
+    # Completed tasks
+    cursor.execute("SELECT COUNT(*) FROM tasks WHERE is_done=1")
+    completed = cursor.fetchone()[0]
+
+    # Pending tasks
+    cursor.execute("SELECT COUNT(*) FROM tasks WHERE is_done=0")
+    pending = cursor.fetchone()[0]
+
+    # Today's tasks
+    cursor.execute("SELECT COUNT(*) FROM tasks WHERE due_date=date('now')")
+    today = cursor.fetchone()[0]
+
+    # Overdue tasks
+    cursor.execute("SELECT COUNT(*) FROM tasks WHERE due_date < date('now') AND is_done=0")
+    overdue = cursor.fetchone()[0]
+
+    conn.close()
+
+    # ------------------ PROGRESS CALCULATION ------------------
+
+    progress = 0
+
+    if total > 0:
+        progress = round((completed / total) * 100, 2)
+
+    return jsonify({
+        "total": total,
+        "completed": completed,
+        "pending": pending,
+        "today": today,
+        "overdue": overdue,
+        "progress": progress
+    })
 
 
 # ------------------ MAIN ------------------
