@@ -1,0 +1,51 @@
+:root {
+    --primary-green: #108981;
+    --sidebar-dark: #1E1E1E;
+    --danger-red: #EF4444;
+    --bg-light: #F9FAFB;
+    --border-color: #E5E7EB;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--bg-light);
+    margin: 0;
+    display: flex;
+}
+
+.app-container { display: flex; width: 100%; height: 100vh; }
+
+.sidebar {
+    width: 260px;
+    background-color: var(--sidebar-dark);
+    color: white;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.logo { font-size: 28px; font-weight: 800; margin-bottom: 40px; color: var(--primary-green); }
+
+.nav-btn {
+    background: none; border: none; color: #9CA3AF;
+    padding: 12px; text-align: left; cursor: pointer; font-size: 15px;
+}
+
+.nav-btn.active { color: white; font-weight: 700; }
+
+.progress-bar {
+    background: #333; height: 8px; border-radius: 4px; margin: 10px 0;
+}
+
+#progress-fill {
+    background: var(--primary-green); height: 100%; width: 0%; border-radius: 4px; transition: 0.3s;
+}
+
+.main-content { flex: 1; padding: 40px; overflow-y: auto; }
+
+/* Task Cards */
+.task-card {
+    background: white; border: 1px solid var(--border-color);
+    padding: 16px; border-radius: 12px; margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+}
