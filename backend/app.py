@@ -65,8 +65,10 @@ def get_tasks():
     if category: query += " AND category=?"; params.append(category)
     if status == "done":    query += " AND is_done=1"
     elif status == "pending": query += " AND is_done=0"
-    elif status == "today":   query += " AND due_date=date('now')"
-    elif status == "overdue": query += " AND due_date < date('now') AND is_done=0"
+    elif status == "today":
+        query += " AND date(due_date)=date('now','localtime')"
+    elif status == "overdue":
+        query += " AND due_date < strftime('%Y-%m-%dT%H:%M','now','localtime') AND is_done=0"
     if search: query += " AND title LIKE ?"; params.append(f"%{search}%")
     if sort == "due_date":  query += " ORDER BY due_date ASC"
     elif sort == "priority": query += " ORDER BY CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END"
@@ -157,8 +159,9 @@ def get_stats():
     total     = count("SELECT COUNT(*) FROM tasks WHERE user_id=?")
     completed = count("SELECT COUNT(*) FROM tasks WHERE is_done=1 AND user_id=?")
     pending   = count("SELECT COUNT(*) FROM tasks WHERE is_done=0 AND user_id=?")
-    today     = count("SELECT COUNT(*) FROM tasks WHERE due_date=date('now') AND user_id=?")
-    overdue   = count("SELECT COUNT(*) FROM tasks WHERE due_date < date('now') AND is_done=0 AND user_id=?")
+    today  = count("SELECT COUNT(*) FROM tasks WHERE date(due_date)=date('now','localtime') AND user_id=?")
+    overdue = count("SELECT COUNT(*) FROM tasks WHERE due_date < strftime('%Y-%m-%dT%H:%M','now','localtime') AND is_done=0 AND user_id=?")
+
     conn.close()
     progress = round((completed / total) * 100, 2) if total > 0 else 0
     return jsonify({"total":total,"completed":completed,"pending":pending,"today":today,"overdue":overdue,"progress":progress})
