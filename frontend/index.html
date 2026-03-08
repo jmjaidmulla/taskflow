@@ -62,6 +62,27 @@
     .auth-btn{width:100%;padding:12px;background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border:none;border-radius:var(--r-sm);font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;box-shadow:0 4px 14px rgba(37,99,235,.4);transition:all .2s;margin-top:4px;}
     .auth-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.5);}
     .auth-err{font-size:12px;color:#DC2626;text-align:center;min-height:16px;font-weight:500;}
+    .auth-forgot{text-align:right;margin-top:-8px;margin-bottom:2px;}
+    .auth-forgot a{font-size:11px;color:#2563EB;cursor:pointer;font-weight:600;}
+    .auth-forgot a:hover{text-decoration:underline;}
+    .rg-step{display:none;flex-direction:column;gap:14px;}
+    .rg-step.active{display:flex;}
+    .fp-step{display:none;flex-direction:column;gap:14px;}
+    .fp-step.active{display:flex;}
+    .fp-back{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#64748B;cursor:pointer;font-weight:600;margin-bottom:2px;}
+    .fp-back:hover{color:#2563EB;}
+    .fp-hero{text-align:center;padding:6px 0 2px;}
+    .otp-row{display:flex;gap:8px;justify-content:center;margin:4px 0;}
+    .otp-box{width:42px;height:50px;text-align:center;font-size:22px;font-weight:700;border:1.5px solid #E2E8F0;border-radius:8px;font-family:'JetBrains Mono',monospace;background:#F8FAFC;color:#0F172A;outline:none;transition:all .2s;caret-color:transparent;}
+    .otp-box:focus{border-color:#2563EB;background:#EFF6FF;box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+    .otp-box.done{border-color:#2563EB;background:#EFF6FF;}
+    .otp-box.shake{border-color:#DC2626 !important;background:#FEF2F2;}
+    .otp-meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-top:4px;}
+    .otp-timer{color:#64748B;font-family:'JetBrains Mono',monospace;}
+    .otp-resend{color:#2563EB;cursor:pointer;font-weight:600;}
+    .otp-resend:hover{text-decoration:underline;}
+    .otp-resend.off{color:#CBD5E1;pointer-events:none;}
+    .auth-ok{font-size:12px;color:#059669;text-align:center;font-weight:600;min-height:14px;}
 
     /* ─── APP SHELL ──────────────────────────────────────────── */
     #app{display:none;width:100%;height:100vh;}
@@ -358,19 +379,163 @@
             <div class="fw"><span class="fi">👤</span><input class="finput" type="text" id="li-u" placeholder="Your username"/></div></div>
         <div><label class="fl">Password</label>
             <div class="fw"><span class="fi">🔒</span><input class="finput" type="password" id="li-p" placeholder="Your password"/></div></div>
+        <div class="auth-forgot"><a onclick="fpShow(1)">Forgot password?</a> &nbsp;·&nbsp; <a onclick="fuShow(1)">Forgot username?</a></div>
         <div class="auth-err" id="li-err"></div>
         <button class="auth-btn" onclick="doLogin()">Sign In →</button>
         </div>
+
+        <!-- FP Step 1: Mobile -->
+        <div class="fp-step" id="fp1">
+          <div class="fp-back" onclick="fpShow(0)">← Back to Sign In</div>
+          <div class="fp-hero">
+            <div style="font-size:30px">🔐</div>
+            <div style="font-size:15px;font-weight:800;color:#0F172A;margin-top:6px">Forgot Password?</div>
+            <div style="font-size:12px;color:#64748B;margin-top:3px">Enter your registered mobile number</div>
+          </div>
+          <div><label class="fl">Mobile Number</label>
+            <div class="fw"><span class="fi">📱</span>
+            <input class="finput" type="tel" id="fp-mob" placeholder="10-digit mobile number" maxlength="10"/></div></div>
+          <div class="auth-err" id="fp-err1"></div>
+          <button class="auth-btn" onclick="fpSendOtp()">Send OTP →</button>
+        </div>
+
+        <!-- FP Step 2: OTP -->
+        <div class="fp-step" id="fp2">
+          <div class="fp-back" onclick="fpShow(1)">← Change number</div>
+          <div class="fp-hero">
+            <div style="font-size:30px">📲</div>
+            <div style="font-size:15px;font-weight:800;color:#0F172A;margin-top:6px">Enter OTP</div>
+            <div style="font-size:12px;color:#64748B;margin-top:3px" id="fp-sent-lbl">OTP sent to your mobile</div>
+          </div>
+          <div class="otp-row">
+            <input class="otp-box" type="tel" maxlength="1" id="fp-ob0" oninput="fpOtpIn(0)" onkeydown="fpOtpKey(event,0)"/>
+            <input class="otp-box" type="tel" maxlength="1" id="fp-ob1" oninput="fpOtpIn(1)" onkeydown="fpOtpKey(event,1)"/>
+            <input class="otp-box" type="tel" maxlength="1" id="fp-ob2" oninput="fpOtpIn(2)" onkeydown="fpOtpKey(event,2)"/>
+            <input class="otp-box" type="tel" maxlength="1" id="fp-ob3" oninput="fpOtpIn(3)" onkeydown="fpOtpKey(event,3)"/>
+            <input class="otp-box" type="tel" maxlength="1" id="fp-ob4" oninput="fpOtpIn(4)" onkeydown="fpOtpKey(event,4)"/>
+            <input class="otp-box" type="tel" maxlength="1" id="fp-ob5" oninput="fpOtpIn(5)" onkeydown="fpOtpKey(event,5)"/>
+          </div>
+          <div class="otp-meta">
+            <span class="otp-timer" id="fp-timer">Resend in 60s</span>
+            <span class="otp-resend off" id="fp-resend" onclick="fpSendOtp(true)">Resend OTP</span>
+          </div>
+          <div class="auth-err" id="fp-err2"></div>
+          <button class="auth-btn" onclick="fpVerifyOtp()">Verify OTP →</button>
+        </div>
+
+        <!-- FP Step 3: New Password -->
+        <div class="fp-step" id="fp3">
+          <div class="fp-hero">
+            <div style="font-size:30px">🔒</div>
+            <div style="font-size:15px;font-weight:800;color:#0F172A;margin-top:6px">Set New Password</div>
+            <div style="font-size:12px;color:#64748B;margin-top:3px">Choose a strong new password</div>
+          </div>
+          <div><label class="fl">New Password</label>
+            <div class="fw"><span class="fi">🔒</span>
+            <input class="finput" type="password" id="fp-np" placeholder="Min. 4 characters"/></div></div>
+          <div><label class="fl">Confirm Password</label>
+            <div class="fw"><span class="fi">🔒</span>
+            <input class="finput" type="password" id="fp-cp" placeholder="Repeat new password"/></div></div>
+          <div class="auth-err" id="fp-err3"></div>
+          <div class="auth-ok"  id="fp-ok3"></div>
+          <button class="auth-btn" onclick="fpResetPass()">Reset Password →</button>
+        </div>
+
+        <!-- FU Step 1: Enter Mobile -->
+        <div class="fp-step" id="fu1">
+          <div class="fp-back" onclick="fuShow(0)">← Back to Sign In</div>
+          <div class="fp-hero">
+            <div style="font-size:30px">👤</div>
+            <div style="font-size:15px;font-weight:800;color:#0F172A;margin-top:6px">Forgot Username?</div>
+            <div style="font-size:12px;color:#64748B;margin-top:3px">Enter your registered mobile number</div>
+          </div>
+          <div><label class="fl">Mobile Number</label>
+            <div class="fw"><span class="fi">📱</span>
+            <input class="finput" type="tel" id="fu-mob" placeholder="10-digit mobile number" maxlength="10"/></div></div>
+          <div class="auth-err" id="fu-err1"></div>
+          <button class="auth-btn" onclick="fuSendOtp()">Send OTP →</button>
+        </div>
+
+        <!-- FU Step 2: Verify OTP -->
+        <div class="fp-step" id="fu2">
+          <div class="fp-back" onclick="fuShow(1)">← Change number</div>
+          <div class="fp-hero">
+            <div style="font-size:30px">📲</div>
+            <div style="font-size:15px;font-weight:800;color:#0F172A;margin-top:6px">Enter OTP</div>
+            <div style="font-size:12px;color:#64748B;margin-top:3px" id="fu-sent-lbl">OTP sent to your mobile</div>
+          </div>
+          <div class="otp-row">
+            <input class="otp-box" type="tel" maxlength="1" id="fu-ob0" oninput="fuOtpIn(0)" onkeydown="fuOtpKey(event,0)"/>
+            <input class="otp-box" type="tel" maxlength="1" id="fu-ob1" oninput="fuOtpIn(1)" onkeydown="fuOtpKey(event,1)"/>
+            <input class="otp-box" type="tel" maxlength="1" id="fu-ob2" oninput="fuOtpIn(2)" onkeydown="fuOtpKey(event,2)"/>
+            <input class="otp-box" type="tel" maxlength="1" id="fu-ob3" oninput="fuOtpIn(3)" onkeydown="fuOtpKey(event,3)"/>
+            <input class="otp-box" type="tel" maxlength="1" id="fu-ob4" oninput="fuOtpIn(4)" onkeydown="fuOtpKey(event,4)"/>
+            <input class="otp-box" type="tel" maxlength="1" id="fu-ob5" oninput="fuOtpIn(5)" onkeydown="fuOtpKey(event,5)"/>
+          </div>
+          <div class="otp-meta">
+            <span class="otp-timer" id="fu-timer">Resend in 60s</span>
+            <span class="otp-resend off" id="fu-resend" onclick="fuSendOtp(true)">Resend OTP</span>
+          </div>
+          <div class="auth-err" id="fu-err2"></div>
+          <button class="auth-btn" onclick="fuVerifyOtp()">Verify OTP →</button>
+        </div>
+
+        <!-- FU Step 3: Show Username -->
+        <div class="fp-step" id="fu3">
+          <div class="fp-hero">
+            <div style="font-size:36px">🎉</div>
+            <div style="font-size:15px;font-weight:800;color:#0F172A;margin-top:6px">Your Username</div>
+            <div style="font-size:12px;color:#64748B;margin-top:3px">You can now sign in with this username</div>
+          </div>
+          <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:18px;text-align:center;margin:8px 0;">
+            <div style="font-size:11px;color:#64748B;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Username</div>
+            <div style="font-size:22px;font-weight:800;color:#1D4ED8;font-family:'JetBrains Mono',monospace;letter-spacing:.5px" id="fu-result">—</div>
+          </div>
+          <div class="auth-ok" id="fu-ok3"></div>
+          <button class="auth-btn" onclick="fuGoLogin()">← Sign In Now</button>
+        </div>
+
         <div class="auth-form" id="register-form">
-        <div><label class="fl">Username</label>
-            <div class="fw"><span class="fi">👤</span><input class="finput" type="text" id="rg-u" placeholder="Choose a username"/></div></div>
-        <div><label class="fl">Mobile Number</label>
-            <div class="fw"><span class="fi">📱</span><input class="finput" type="tel" id="rg-m" placeholder="10-digit mobile number" maxlength="10"/></div>
-            <div class="fhint">One mobile number = one account only</div></div>
-        <div><label class="fl">Password</label>
-            <div class="fw"><span class="fi">🔒</span><input class="finput" type="password" id="rg-p" placeholder="Min. 4 characters"/></div></div>
-        <div class="auth-err" id="rg-err"></div>
-        <button class="auth-btn" onclick="doRegister()">Create Account →</button>
+          <!-- Step 1: Details -->
+          <div class="rg-step active" id="rg-s1">
+            <div><label class="fl">Username</label>
+              <div class="fw"><span class="fi">👤</span>
+              <input class="finput" type="text" id="rg-u" placeholder="Choose a username"/></div></div>
+            <div><label class="fl">Mobile Number</label>
+              <div class="fw"><span class="fi">📱</span>
+              <input class="finput" type="tel" id="rg-m" placeholder="10-digit mobile number" maxlength="10"/></div>
+              <div class="fhint">OTP will be sent to this number to verify</div></div>
+            <div><label class="fl">Password</label>
+              <div class="fw"><span class="fi">🔒</span>
+              <input class="finput" type="password" id="rg-p" placeholder="Min. 4 characters"/></div></div>
+            <div class="auth-err" id="rg-err"></div>
+            <button class="auth-btn" onclick="rgSendOtp()">Send OTP →</button>
+          </div>
+          <!-- Step 2: Verify OTP -->
+          <div class="rg-step" id="rg-s2">
+            <div style="text-align:center;padding:4px 0 2px">
+              <div style="font-size:28px">📲</div>
+              <div style="font-size:15px;font-weight:800;color:#0F172A;margin-top:6px">Verify Mobile Number</div>
+              <div style="font-size:12px;color:#64748B;margin-top:3px" id="rg-sent-lbl">OTP sent to your number</div>
+            </div>
+            <div class="otp-row">
+              <input class="otp-box" type="tel" maxlength="1" id="rg-ob0" oninput="rgOtpIn(0)" onkeydown="rgOtpKey(event,0)"/>
+              <input class="otp-box" type="tel" maxlength="1" id="rg-ob1" oninput="rgOtpIn(1)" onkeydown="rgOtpKey(event,1)"/>
+              <input class="otp-box" type="tel" maxlength="1" id="rg-ob2" oninput="rgOtpIn(2)" onkeydown="rgOtpKey(event,2)"/>
+              <input class="otp-box" type="tel" maxlength="1" id="rg-ob3" oninput="rgOtpIn(3)" onkeydown="rgOtpKey(event,3)"/>
+              <input class="otp-box" type="tel" maxlength="1" id="rg-ob4" oninput="rgOtpIn(4)" onkeydown="rgOtpKey(event,4)"/>
+              <input class="otp-box" type="tel" maxlength="1" id="rg-ob5" oninput="rgOtpIn(5)" onkeydown="rgOtpKey(event,5)"/>
+            </div>
+            <div class="otp-meta">
+              <span class="otp-timer" id="rg-timer">Resend in 60s</span>
+              <span class="otp-resend off" id="rg-resend" onclick="rgSendOtp(true)">Resend OTP</span>
+            </div>
+            <div class="auth-err" id="rg-err2"></div>
+            <button class="auth-btn" onclick="rgVerifyAndCreate()">Verify &amp; Create Account →</button>
+            <div style="text-align:center;margin-top:-4px">
+              <span style="font-size:11px;color:#2563EB;cursor:pointer;font-weight:600" onclick="rgGoBack()">← Change details</span>
+            </div>
+          </div>
         </div>
     </div>
     </div>
@@ -410,7 +575,7 @@
             <div class="av" id="sb-av"></div>
             <div class="av-dot"></div>
             </div>
-            <div><div class="sb-uname" id="sb-name">—</div><div class="sb-urole">Free Plan</div></div>
+            <div><div class="sb-uname" id="sb-name">—</div></div>
         </div>
         </div>
     </aside>
@@ -516,7 +681,7 @@
             <div class="s-row">
             <span class="s-row-icon">🔔</span>
             <div class="s-row-body"><div class="s-row-label">Notifications</div><div class="s-row-desc">Task reminders and alerts</div></div>
-            <div class="s-row-right"><div class="tog on" onclick="event.stopPropagation();this.classList.toggle('on')"></div></div>
+            <div class="s-row-right"><div class="tog" id="notif-tog" onclick="event.stopPropagation();toggleNotifications()"></div></div>
             </div>
         </div>
         <div class="s-panel">
@@ -548,7 +713,7 @@
         <div class="fg"><label>Description</label><textarea id="t-desc" placeholder="Optional details…"></textarea></div>
         <div class="fg-row">
         <div class="fg"><label>Category</label><select id="t-cat"><option value="work">💼 Work</option><option value="personal">🏠 Personal</option><option value="study">📚 Study</option></select></div>
-        <div class="fg"><label>Due Date & Time</label><input type="datetime-local" id="t-date"/></div>
+        <div class="fg"><label>Due Date & Time <span style="color:#DC2626">*</span></label><input type="datetime-local" id="t-date"/><div class="fg-err" id="t-date-err" style="font-size:12px;color:#DC2626;min-height:14px;margin-top:3px"></div></div>
         </div>
         <div class="fg"><label>Priority</label>
         <div class="pri-btns">
@@ -580,7 +745,8 @@
         <input type="file" id="img-file" accept="image/*" style="display:none" onchange="onImgSelect(event)"/>
         <div class="prof-hint">Upload a photo · It will be cropped to a circle</div>
         </div>
-        <div class="fg"><label>Display Name</label><input type="text" id="prof-name" placeholder="How you want to be called"/></div>
+        <div class="fg"><label>Username</label><input type="text" id="prof-username" placeholder="e.g. john_doe" maxlength="30"/><div style="font-size:11px;color:#94A3B8;margin-top:3px">Letters, numbers and underscores only</div></div>
+        <div class="fg"><label> Name</label><input type="text" id="prof-name" placeholder="How you want to be called"/></div>
         <div class="fg"><label>Mobile Number</label><input type="tel" id="prof-mobile" placeholder="10-digit mobile number" maxlength="10"/></div>
         <div class="sec-div"><span>Change Password (optional)</span></div>
         <div class="fg"><label>Current Password</label><input type="password" id="prof-curr" placeholder="Required only if changing password"/></div>
@@ -690,6 +856,11 @@
     let selPri='high', curFilter='all', curCat='', curSort='', searchQ='';
     let darkMode = localStorage.getItem('tf_dark') === 'true';
 
+    // ── Notification globals (declared here so all functions can access them) ──
+    let _notifEnabled  = localStorage.getItem('tf_notif') !== 'off';
+    let _notifInterval = null;
+    let _notifFired    = JSON.parse(localStorage.getItem('tf_notif_fired') || '{}');
+
     // Cropper state
     let cropImgSrc=null, cropX=80, cropY=60, cropW=160, cropH=160;
     let cropImgX=0, cropImgY=0, cropScale=1, _drag=null;
@@ -707,9 +878,18 @@
     AUTH
     ══════════════════════════════════════════════════ */
     function switchTab(t) {
-    document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('active', t==='login' ? i===0 : i===1));
-    document.getElementById('login-form').classList.toggle('active', t==='login');
-    document.getElementById('register-form').classList.toggle('active', t==='register');
+      document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('active', t==='login' ? i===0 : i===1));
+      // Hide all login-side panels
+      ['login-form','fp1','fp2','fp3','fu1','fu2','fu3'].forEach(id => document.getElementById(id).classList.remove('active'));
+      // Hide all register-side steps
+      document.getElementById('register-form').classList.remove('active');
+      ['rg-s1','rg-s2'].forEach(id => document.getElementById(id).classList.remove('active'));
+      if (t === 'login') {
+        document.getElementById('login-form').classList.add('active');
+      } else {
+        document.getElementById('register-form').classList.add('active');
+        document.getElementById('rg-s1').classList.add('active');
+      }
     }
 
     async function doLogin() {
@@ -733,23 +913,328 @@
     } catch(e) { err.textContent = e.message; }
     }
 
-    async function doRegister() {
-    const u=document.getElementById('rg-u').value.trim();
-    const m=document.getElementById('rg-m').value.trim();
-    const p=document.getElementById('rg-p').value;
-    const err=document.getElementById('rg-err');
-    err.textContent='';
-    if (!u||!m||!p) { err.textContent='All fields are required.'; return; }
-    if (!/^\d{10}$/.test(m)) { err.textContent='Mobile must be exactly 10 digits.'; return; }
-    if (p.length<4) { err.textContent='Password must be at least 4 characters.'; return; }
-    try {
-        const res = await fetch(`${API}/register`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, mobile:m, password:p})});
-        const d   = await res.json();
-        if (!res.ok) throw new Error(d.error || 'Registration failed');
-        showToast('Account created! Please sign in.', 'success');
+    /* ═══════════════════════════════════════════════════════
+       REGISTER WITH OTP
+       ═══════════════════════════════════════════════════════ */
+    let _rgTimer = null;
+
+    async function rgSendOtp(isResend = false) {
+      const u   = document.getElementById('rg-u').value.trim();
+      const m   = document.getElementById('rg-m').value.trim();
+      const p   = document.getElementById('rg-p').value;
+      const err = document.getElementById('rg-err');
+      err.textContent = '';
+      if (!u || !m || !p)               { err.textContent = 'All fields are required.'; return; }
+      if (u.length < 3)                 { err.textContent = 'Username must be at least 3 characters.'; return; }
+      if (!/^[a-zA-Z0-9_]+$/.test(u))  { err.textContent = 'Username: only letters, numbers, underscores.'; return; }
+      if (!/^[0-9]{10}$/.test(m))       { err.textContent = 'Mobile must be exactly 10 digits.'; return; }
+      if (p.length < 4)                 { err.textContent = 'Password must be at least 4 characters.'; return; }
+      try {
+        const res = await fetch(`${API}/register/send-otp`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({username: u, mobile: m, password: p})
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Failed to send OTP');
+        // Show masked number or dev mode hint
+        const masked = '+91 ' + m.slice(0,2) + 'XXXXXX' + m.slice(-2);
+        document.getElementById('rg-sent-lbl').textContent = d.dev
+          ? '⚠️ DEV MODE — Check Flask terminal for OTP'
+          : 'OTP sent to ' + masked;
+        // Clear OTP boxes
+        for (let i = 0; i < 6; i++) {
+          const b = document.getElementById('rg-ob' + i);
+          b.value = ''; b.classList.remove('done', 'shake');
+        }
+        document.getElementById('rg-err2').textContent = '';
+        document.getElementById('rg-s1').classList.remove('active');
+        document.getElementById('rg-s2').classList.add('active');
+        rgStartTimer();
+        showToast(d.dev ? '⚠️ Dev mode — check terminal for OTP' : 'OTP sent to ' + masked, d.dev ? 'info' : 'success');
+        setTimeout(() => document.getElementById('rg-ob0').focus(), 80);
+      } catch(e) { err.textContent = e.message; }
+    }
+
+    function rgGoBack() {
+      clearInterval(_rgTimer);
+      document.getElementById('rg-s2').classList.remove('active');
+      document.getElementById('rg-s1').classList.add('active');
+    }
+
+    function rgStartTimer() {
+      clearInterval(_rgTimer);
+      let s = 60;
+      const tEl = document.getElementById('rg-timer');
+      const rEl = document.getElementById('rg-resend');
+      rEl.classList.add('off'); tEl.textContent = 'Resend in 60s';
+      _rgTimer = setInterval(() => {
+        s--;
+        tEl.textContent = s > 0 ? 'Resend in ' + s + 's' : '';
+        if (s <= 0) { clearInterval(_rgTimer); rEl.classList.remove('off'); }
+      }, 1000);
+    }
+
+    function rgOtpIn(i) {
+      const b = document.getElementById('rg-ob' + i);
+      b.value = b.value.replace(/[^0-9]/g, '').slice(-1);
+      b.classList.toggle('done', !!b.value);
+      b.classList.remove('shake');
+      if (b.value && i < 5) document.getElementById('rg-ob' + (i+1)).focus();
+      const allFilled = [0,1,2,3,4,5].every(j => document.getElementById('rg-ob'+j).value);
+      if (allFilled) rgVerifyAndCreate();
+    }
+
+    function rgOtpKey(e, i) {
+      if (e.key === 'Backspace' && !document.getElementById('rg-ob'+i).value && i > 0)
+        document.getElementById('rg-ob' + (i-1)).focus();
+    }
+
+    async function rgVerifyAndCreate() {
+      const otp = [0,1,2,3,4,5].map(i => document.getElementById('rg-ob'+i).value).join('');
+      const err = document.getElementById('rg-err2');
+      err.textContent = '';
+      if (otp.length < 6) { err.textContent = 'Enter the complete 6-digit OTP.'; return; }
+      const m = document.getElementById('rg-m').value.trim();
+      try {
+        const res = await fetch(`${API}/register/verify-otp`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({mobile: m, otp: otp})
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Verification failed');
+        clearInterval(_rgTimer);
+        showToast('✅ Account created! Please sign in.', 'success');
         switchTab('login');
-        document.getElementById('li-u').value = u;
-    } catch(e) { err.textContent = e.message; }
+        document.getElementById('li-u').value = document.getElementById('rg-u').value.trim();
+      } catch(e) {
+        err.textContent = e.message;
+        [0,1,2,3,4,5].forEach(i => {
+          const b = document.getElementById('rg-ob'+i);
+          b.classList.add('shake');
+          setTimeout(() => b.classList.remove('shake'), 1200);
+        });
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       FORGOT PASSWORD WITH OTP
+       ═══════════════════════════════════════════════════════ */
+    let _fpMobile = '', _fpToken = '', _fpTimer = null;
+
+    function fpShow(step) {
+      ['login-form','fp1','fp2','fp3','fu1','fu2','fu3'].forEach(id => document.getElementById(id).classList.remove('active'));
+      if (step === 0) document.getElementById('login-form').classList.add('active');
+      else            document.getElementById('fp' + step).classList.add('active');
+      document.getElementById('li-err').textContent = '';
+      if (step === 1) setTimeout(() => document.getElementById('fp-mob').focus(), 80);
+      if (step === 2) setTimeout(() => document.getElementById('fp-ob0').focus(), 80);
+      if (step === 3) setTimeout(() => document.getElementById('fp-np').focus(), 80);
+    }
+
+    async function fpSendOtp(isResend = false) {
+      const mob   = isResend ? _fpMobile : document.getElementById('fp-mob').value.trim();
+      const errEl = document.getElementById('fp-err1');
+      errEl.textContent = '';
+      if (!/^[0-9]{10}$/.test(mob)) { errEl.textContent = 'Enter a valid 10-digit mobile number.'; return; }
+      _fpMobile = mob;
+      try {
+        const res = await fetch(`${API}/forgot-password/send-otp`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({mobile: mob})
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Failed to send OTP');
+        const masked = '+91 ' + mob.slice(0,2) + 'XXXXXX' + mob.slice(-2);
+        document.getElementById('fp-sent-lbl').textContent = d.dev
+          ? '⚠️ DEV MODE — Check Flask terminal for OTP'
+          : 'OTP sent to ' + masked;
+        for (let i = 0; i < 6; i++) {
+          const b = document.getElementById('fp-ob' + i);
+          b.value = ''; b.classList.remove('done', 'shake');
+        }
+        document.getElementById('fp-err2').textContent = '';
+        fpShow(2); fpStartTimer();
+        showToast(d.dev ? '⚠️ Dev mode — check terminal for OTP' : 'OTP sent to ' + masked, d.dev ? 'info' : 'success');
+      } catch(e) { document.getElementById('fp-err1').textContent = e.message; }
+    }
+
+    function fpStartTimer() {
+      clearInterval(_fpTimer);
+      let s = 60;
+      const tEl = document.getElementById('fp-timer');
+      const rEl = document.getElementById('fp-resend');
+      rEl.classList.add('off'); tEl.textContent = 'Resend in 60s';
+      _fpTimer = setInterval(() => {
+        s--;
+        tEl.textContent = s > 0 ? 'Resend in ' + s + 's' : '';
+        if (s <= 0) { clearInterval(_fpTimer); rEl.classList.remove('off'); }
+      }, 1000);
+    }
+
+    function fpOtpIn(i) {
+      const b = document.getElementById('fp-ob' + i);
+      b.value = b.value.replace(/[^0-9]/g, '').slice(-1);
+      b.classList.toggle('done', !!b.value);
+      b.classList.remove('shake');
+      if (b.value && i < 5) document.getElementById('fp-ob' + (i+1)).focus();
+      const allFilled = [0,1,2,3,4,5].every(j => document.getElementById('fp-ob'+j).value);
+      if (allFilled) fpVerifyOtp();
+    }
+
+    function fpOtpKey(e, i) {
+      if (e.key === 'Backspace' && !document.getElementById('fp-ob'+i).value && i > 0)
+        document.getElementById('fp-ob' + (i-1)).focus();
+    }
+
+    async function fpVerifyOtp() {
+      const otp   = [0,1,2,3,4,5].map(i => document.getElementById('fp-ob'+i).value).join('');
+      const errEl = document.getElementById('fp-err2');
+      errEl.textContent = '';
+      if (otp.length < 6) { errEl.textContent = 'Enter the complete 6-digit OTP.'; return; }
+      try {
+        const res = await fetch(`${API}/forgot-password/verify-otp`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({mobile: _fpMobile, otp: otp})
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Invalid OTP');
+        _fpToken = d.reset_token;
+        clearInterval(_fpTimer);
+        document.getElementById('fp-err3').textContent = '';
+        document.getElementById('fp-ok3').textContent  = '';
+        fpShow(3);
+      } catch(e) {
+        errEl.textContent = e.message;
+        [0,1,2,3,4,5].forEach(i => {
+          const b = document.getElementById('fp-ob'+i);
+          b.classList.add('shake');
+          setTimeout(() => b.classList.remove('shake'), 1200);
+        });
+      }
+    }
+
+    async function fpResetPass() {
+      const np  = document.getElementById('fp-np').value;
+      const cp  = document.getElementById('fp-cp').value;
+      const err = document.getElementById('fp-err3');
+      const ok  = document.getElementById('fp-ok3');
+      err.textContent = ''; ok.textContent = '';
+      if (!np)          { err.textContent = 'Enter a new password.'; return; }
+      if (np.length < 4){ err.textContent = 'Password must be at least 4 characters.'; return; }
+      if (np !== cp)    { err.textContent = 'Passwords do not match.'; return; }
+      try {
+        const res = await fetch(`${API}/forgot-password/reset`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({reset_token: _fpToken, new_password: np})
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Reset failed');
+        ok.textContent = '✅ Password reset! You can now sign in.';
+        _fpToken = ''; _fpMobile = '';
+        setTimeout(() => fpShow(0), 2000);
+      } catch(e) { err.textContent = e.message; }
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       FORGOT USERNAME WITH OTP
+       ═══════════════════════════════════════════════════════ */
+    let _fuMobile = '', _fuTimer = null;
+
+    function fuShow(step) {
+      ['login-form','fp1','fp2','fp3','fu1','fu2','fu3'].forEach(id => document.getElementById(id).classList.remove('active'));
+      if (step === 0) document.getElementById('login-form').classList.add('active');
+      else            document.getElementById('fu' + step).classList.add('active');
+      if (step === 1) setTimeout(() => document.getElementById('fu-mob').focus(), 80);
+      if (step === 2) setTimeout(() => document.getElementById('fu-ob0').focus(), 80);
+    }
+
+    async function fuSendOtp(isResend = false) {
+      const mob   = isResend ? _fuMobile : document.getElementById('fu-mob').value.trim();
+      const errEl = document.getElementById('fu-err1');
+      errEl.textContent = '';
+      if (!/^[0-9]{10}$/.test(mob)) { errEl.textContent = 'Enter a valid 10-digit mobile number.'; return; }
+      _fuMobile = mob;
+      try {
+        const res = await fetch(`${API}/forgot-username/send-otp`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({mobile: mob})
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Failed to send OTP');
+        const masked = '+91 ' + mob.slice(0,2) + 'XXXXXX' + mob.slice(-2);
+        document.getElementById('fu-sent-lbl').textContent = d.dev
+          ? '⚠️ DEV MODE — Check Flask terminal for OTP'
+          : 'OTP sent to ' + masked;
+        for (let i = 0; i < 6; i++) {
+          const b = document.getElementById('fu-ob' + i);
+          b.value = ''; b.classList.remove('done', 'shake');
+        }
+        document.getElementById('fu-err2').textContent = '';
+        fuShow(2); fuStartTimer();
+        showToast(d.dev ? '⚠️ Dev mode — check terminal for OTP' : 'OTP sent to ' + masked, d.dev ? 'info' : 'success');
+      } catch(e) { document.getElementById('fu-err1').textContent = e.message; }
+    }
+
+    function fuStartTimer() {
+      clearInterval(_fuTimer);
+      let s = 60;
+      const tEl = document.getElementById('fu-timer');
+      const rEl = document.getElementById('fu-resend');
+      rEl.classList.add('off'); tEl.textContent = 'Resend in 60s';
+      _fuTimer = setInterval(() => {
+        s--;
+        tEl.textContent = s > 0 ? 'Resend in ' + s + 's' : '';
+        if (s <= 0) { clearInterval(_fuTimer); rEl.classList.remove('off'); }
+      }, 1000);
+    }
+
+    function fuOtpIn(i) {
+      const b = document.getElementById('fu-ob' + i);
+      b.value = b.value.replace(/[^0-9]/g, '').slice(-1);
+      b.classList.toggle('done', !!b.value);
+      b.classList.remove('shake');
+      if (b.value && i < 5) document.getElementById('fu-ob' + (i+1)).focus();
+      const allFilled = [0,1,2,3,4,5].every(j => document.getElementById('fu-ob'+j).value);
+      if (allFilled) fuVerifyOtp();
+    }
+
+    function fuOtpKey(e, i) {
+      if (e.key === 'Backspace' && !document.getElementById('fu-ob'+i).value && i > 0)
+        document.getElementById('fu-ob' + (i-1)).focus();
+    }
+
+    async function fuVerifyOtp() {
+      const otp   = [0,1,2,3,4,5].map(i => document.getElementById('fu-ob'+i).value).join('');
+      const errEl = document.getElementById('fu-err2');
+      errEl.textContent = '';
+      if (otp.length < 6) { errEl.textContent = 'Enter the complete 6-digit OTP.'; return; }
+      try {
+        const res = await fetch(`${API}/forgot-username/verify-otp`, {
+          method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({mobile: _fuMobile, otp: otp})
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.error || 'Invalid OTP');
+        clearInterval(_fuTimer);
+        document.getElementById('fu-result').textContent = d.username;
+        document.getElementById('fu-ok3').textContent = '✅ Verified! Use this username to sign in.';
+        fuShow(3);
+      } catch(e) {
+        errEl.textContent = e.message;
+        [0,1,2,3,4,5].forEach(i => {
+          const b = document.getElementById('fu-ob'+i);
+          b.classList.add('shake');
+          setTimeout(() => b.classList.remove('shake'), 1200);
+        });
+      }
+    }
+
+    function fuGoLogin() {
+      const username = document.getElementById('fu-result').textContent;
+      fuShow(0);
+      document.getElementById('li-u').value = username;
+      document.getElementById('li-p').focus();
+      _fuMobile = '';
     }
 
     function saveLocal() {
@@ -761,6 +1246,7 @@
     }
 
     function showApp() {
+    startNotifIfEnabled();
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').classList.add('visible');
     updateUserUI();
@@ -839,6 +1325,7 @@
     try {
         const res = await api(url);
         tasks = await res.json();
+        if (_notifEnabled) checkTaskNotifications();
         renderTasks();
     } catch(e) {
         document.getElementById('task-list').innerHTML =
@@ -894,38 +1381,34 @@
     let sTimer;
     function onSearch(v) { searchQ=v; clearTimeout(sTimer); sTimer=setTimeout(loadTasks,300); }
 
-    // Returns current local datetime as "YYYY-MM-DDTHH:MM" — blocks past time selection
-    function localNowStr() {
-      const n = new Date();
-      n.setMinutes(n.getMinutes() - n.getTimezoneOffset());
-      return n.toISOString().slice(0, 16);
-    }
-
     function openModal(id=null) {
-      editingId=id;
-      document.getElementById('t-title-err').textContent='';
-
-      // Always refresh min to RIGHT NOW when modal opens — blocks past time
-      document.getElementById('t-date').min = localNowStr();
-
-      if (id) {
+    editingId=id;
+    document.getElementById('t-title-err').textContent='';
+      document.getElementById('t-date-err').textContent='';
+    if (id) {
         const t=tasks.find(x=>x.id===id); if(!t) return;
         document.getElementById('modal-ttl').textContent='Edit Task';
         document.getElementById('t-title').value=t.title||'';
         document.getElementById('t-desc').value=t.description||'';
         document.getElementById('t-cat').value=(t.category||'personal').toLowerCase();
         document.getElementById('t-date').value=t.due_date||'';
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // fix timezone
+        document.getElementById('t-date').min = now.toISOString().slice(0, 16);
         setPri((t.priority||'medium').toLowerCase());
-      } else {
+    } else {
         document.getElementById('modal-ttl').textContent='Add New Task';
         document.getElementById('t-title').value='';
         document.getElementById('t-desc').value='';
         document.getElementById('t-cat').value='work';
         document.getElementById('t-date').value='';
-        setPri('high');
-      }
-      document.getElementById('task-overlay').classList.add('open');
-      setTimeout(()=>document.getElementById('t-title').focus(),80);
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // fix timezone
+        document.getElementById('t-date').min = now.toISOString().slice(0, 16);
+        setPri('high');     
+    }
+    document.getElementById('task-overlay').classList.add('open');
+    setTimeout(()=>document.getElementById('t-title').focus(),80);
     }
     function closeModal() { document.getElementById('task-overlay').classList.remove('open'); }
 
@@ -937,25 +1420,22 @@
     async function saveTask() {
       const title   = document.getElementById('t-title').value.trim();
       const dateVal = document.getElementById('t-date').value;
-
-      // Validate title
+      document.getElementById('t-title-err').textContent = '';
+      document.getElementById('t-date-err').textContent  = '';
       if (!title) {
-        document.getElementById('t-title-err').textContent='Title is required.';
+        document.getElementById('t-title-err').textContent = 'Title is required.';
         document.getElementById('t-title').focus(); return;
       }
-
-      // Validate date — block past datetime even if typed manually
-      if (dateVal) {
-        const selected = new Date(dateVal);   // treated as local time (no Z suffix)
-        const now      = new Date();
-        if (selected < now) {
-          document.getElementById('t-title-err').textContent='Due date & time cannot be in the past.';
-          document.getElementById('t-date').focus(); return;
-        }
+      if (!dateVal) {
+        document.getElementById('t-date-err').textContent = 'Due date & time is required.';
+        document.getElementById('t-date').focus(); return;
       }
-
+      if (new Date(dateVal) < new Date()) {
+        document.getElementById('t-date-err').textContent = 'Due date & time cannot be in the past.';
+        document.getElementById('t-date').focus(); return;
+      }
       const payload = {title, description:document.getElementById('t-desc').value.trim(),
-        category:document.getElementById('t-cat').value, due_date:dateVal||null, priority:selPri};
+        category:document.getElementById('t-cat').value, due_date:dateVal, priority:selPri};
     try {
         const res = editingId
         ? await api(`/tasks/${editingId}`, {method:'PUT',  body:JSON.stringify(payload)})
@@ -1053,6 +1533,7 @@
     function openEditProfile() {
     pendingImg = null;
     document.getElementById('prof-err').textContent='';
+    document.getElementById('prof-username').value = curUser||'';
     document.getElementById('prof-name').value   = curDisplay||curUser||'';
     document.getElementById('prof-mobile').value = curMobile||'';
     document.getElementById('prof-curr').value   = '';
@@ -1080,18 +1561,22 @@
     async function saveProfile() {
     const err = document.getElementById('prof-err');
     err.textContent='';
+    const new_username = document.getElementById('prof-username').value.trim();
     const display_name = document.getElementById('prof-name').value.trim();
     const mobile       = document.getElementById('prof-mobile').value.trim();
     const curr_pass    = document.getElementById('prof-curr').value;
     const new_pass     = document.getElementById('prof-new').value;
     const conf_pass    = document.getElementById('prof-conf').value;
 
+    if (new_username && new_username.length < 3)               { err.textContent='Username must be at least 3 characters.'; return; }
+    if (new_username && !/^[a-zA-Z0-9_]+$/.test(new_username)) { err.textContent='Username: only letters, numbers and underscores.'; return; }
     if (mobile && !/^\d{10}$/.test(mobile)) { err.textContent='Mobile must be exactly 10 digits.'; return; }
     if (new_pass && new_pass !== conf_pass)  { err.textContent='New passwords do not match.'; return; }
     if (new_pass && !curr_pass)              { err.textContent='Current password is required to set a new password.'; return; }
     if (new_pass && new_pass.length<4)       { err.textContent='New password must be at least 4 characters.'; return; }
 
     const payload = {};
+    if (new_username && new_username !== curUser) payload.username = new_username;
     if (display_name) payload.display_name = display_name;
     if (mobile)       payload.mobile       = mobile;
     if (new_pass)     { payload.new_password=new_pass; payload.current_password=curr_pass; }
@@ -1104,6 +1589,7 @@
         if (!res.ok) throw new Error(data.error||'Update failed');
 
         // Update state from server response — single source of truth
+        if (data.username) { curUser = data.username; localStorage.setItem('tf_user', curUser); }
         curDisplay = data.display_name  || display_name || curDisplay;
         curMobile  = data.mobile        || mobile       || curMobile;
         curImg     = data.profile_image !== undefined ? data.profile_image : curImg;
@@ -1285,54 +1771,174 @@
     /* ══════════════════════════════════════════════════
     HELPERS
     ══════════════════════════════════════════════════ */
-    // Parse stored due_date correctly as LOCAL time
-    // "2026-03-07T15:30" → local 3:30 PM  (datetime-local input, no Z suffix)
-    // "2026-03-07"       → local midnight  (old date-only tasks)
-    function parseDue(d) {
-      if (!d) return null;
-      if (d.includes('T')) return new Date(d);   // already local, no Z → JS treats as local
-      return new Date(d + 'T00:00');             // date-only → local midnight
-    }
-
     function dueCls(d, done) {
-      if (!d || done) return 'normal';
-      const now  = new Date();
-      const due  = parseDue(d);
-      const todayLocal = now.toLocaleDateString('en-CA'); // YYYY-MM-DD in local tz
-      const dDay = d.split('T')[0];
-      if (due < now)           return 'overdue';
-      if (dDay === todayLocal) return 'today';
-      return 'normal';
+    if (!d || done) return 'normal';
+    const now  = new Date();
+    const date = new Date(d);
+    const todayStr = now.toISOString().split('T')[0];
+    const dStr     = d.split('T')[0];
+    if (date < now)       return 'overdue';
+    if (dStr === todayStr) return 'today';
+    return 'normal';
     }
 
     function isOver(d, done) {
-      if (!d || done) return false;
-      return parseDue(d) < new Date();
+    if (!d || done) return false;
+    return new Date(d) < new Date();
     }
 
     function fmtDue(d) {
-      if (!d) return '';
-      const now      = new Date();
-      const due      = parseDue(d);
-      const todayLocal = now.toLocaleDateString('en-CA'); // YYYY-MM-DD in local tz
-      const dDay     = d.split('T')[0];
-      const hasTime  = d.includes('T');
-      const timeStr  = due.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+    if (!d) return '';
+    const now   = new Date();
+    const date  = new Date(d);
+    const today = now.toISOString().split('T')[0];
+    const dDay  = d.split('T')[0];
 
-      if (hasTime) {
-        if (dDay === todayLocal) return 'Today ' + timeStr;
-        return due.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' + timeStr;
-      } else {
-        // old date-only task — no time to show
-        if (dDay === todayLocal) return 'Today';
-        return due.toLocaleDateString('en-US', {month:'short', day:'numeric'});
-      }
+    const timeStr = date.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+    if (dDay === today) return `Today ${timeStr}`;
+    return date.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' + timeStr;
     }
 
     function esc(s)         { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     function cap(s)         { return s?s[0].toUpperCase()+s.slice(1):''; }
     let toastT;
     function showToast(msg,type='info') { const el=document.getElementById('toast'); el.textContent=msg; el.className=`show ${type}`; clearTimeout(toastT); toastT=setTimeout(()=>el.className='',3000); }
+
+
+    /* ══════════════════════════════════════════════════
+    NOTIFICATIONS  (5-min warning + on-time alert)
+    ══════════════════════════════════════════════════ */
+
+    // Register a Service Worker (blob URL) for background notifications
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+self.addEventListener('message', e => {
+  if (e.data && e.data.type === 'SHOW_NOTIF') {
+    self.registration.showNotification(e.data.title, {
+      body: e.data.body,
+      icon: e.data.icon || '/favicon.ico',
+      tag:  e.data.tag,
+      requireInteraction: false,
+      vibrate: [200, 100, 200]
+    });
+  }
+});
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.matchAll({type:'window'}).then(cs => {
+    if (cs.length) cs[0].focus(); else clients.openWindow('/');
+  }));
+});`;
+      const swBlob = new Blob([swCode], {type:'text/javascript'});
+      navigator.serviceWorker.register(URL.createObjectURL(swBlob))
+        .then(reg => { window._swReg = reg; })
+        .catch(() => {});
+    }
+
+    // Show a native notification (via SW if available, else direct API)
+    function _showNotif(title, body, tag) {
+      if (Notification.permission !== 'granted') return;
+      const icon = 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✅</text></svg>';
+      if (window._swReg && window._swReg.active) {
+        window._swReg.active.postMessage({type:'SHOW_NOTIF', title, body, tag, icon});
+      } else {
+        new Notification(title, {body, tag, icon});
+      }
+    }
+
+    // Check all tasks and fire notifications if needed
+    function checkTaskNotifications() {
+      if (!_notifEnabled || Notification.permission !== 'granted') return;
+      const now    = new Date();
+      const fiveMs = 5 * 60 * 1000;
+      const window = 35_000;  // ±35s window to catch the scheduler tick
+
+      // Remove fired keys for completed/missing tasks
+      Object.keys(_notifFired).forEach(key => {
+        const id = parseInt(key.split('_')[0]);
+        const t  = tasks.find(x => x.id === id);
+        if (!t || t.is_done) delete _notifFired[key];
+      });
+
+      tasks.forEach(t => {
+        if (!t.due_date || t.is_done) return;
+        const due   = new Date(t.due_date);
+        const diff  = due - now;
+        const label = t.title.length > 40 ? t.title.slice(0,37)+'...' : t.title;
+        const dueStr = due.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+
+        // 5-minute warning
+        const key5 = t.id + '_5min';
+        if (!_notifFired[key5] && diff > 0 && diff <= fiveMs + window && diff >= fiveMs - window) {
+          _showNotif('⏰ Due in 5 minutes!', '"' + label + '" is due at ' + dueStr, key5);
+          _notifFired[key5] = true;
+          localStorage.setItem('tf_notif_fired', JSON.stringify(_notifFired));
+        }
+
+        // On-time alert
+        const keyNow = t.id + '_ontime';
+        if (!_notifFired[keyNow] && diff > -window && diff <= window) {
+          _showNotif('🚨 Task Due Now!', '"' + label + '" was due at ' + dueStr + '. Mark it done!', keyNow);
+          _notifFired[keyNow] = true;
+          localStorage.setItem('tf_notif_fired', JSON.stringify(_notifFired));
+        }
+      });
+    }
+
+    function startNotifScheduler() {
+      stopNotifScheduler();
+      checkTaskNotifications();
+      _notifInterval = setInterval(checkTaskNotifications, 30_000);
+    }
+
+    function stopNotifScheduler() {
+      if (_notifInterval) { clearInterval(_notifInterval); _notifInterval = null; }
+    }
+
+    // Called on app load — starts scheduler silently if already permitted
+    function startNotifIfEnabled() {
+      const tog = document.getElementById('notif-tog');
+      if (!_notifEnabled) { if (tog) tog.classList.remove('on'); return; }
+      if (tog) tog.classList.add('on');
+      if (Notification.permission === 'granted') {
+        startNotifScheduler();
+      }
+      // If permission is 'default' — wait for user to toggle manually
+      // If permission is 'denied'  — silently disable
+      if (Notification.permission === 'denied') {
+        _notifEnabled = false;
+        localStorage.setItem('tf_notif', 'off');
+        if (tog) tog.classList.remove('on');
+      }
+    }
+
+    // Called when user clicks the toggle in Settings
+    async function toggleNotifications() {
+      const tog = document.getElementById('notif-tog');
+      if (_notifEnabled) {
+        _notifEnabled = false;
+        localStorage.setItem('tf_notif', 'off');
+        if (tog) tog.classList.remove('on');
+        stopNotifScheduler();
+        showToast('🔕 Notifications disabled.', 'info');
+      } else {
+        if (!('Notification' in window)) { showToast('Your browser does not support notifications.', 'error'); return; }
+        if (Notification.permission === 'denied') {
+          showToast('Notifications blocked — enable them in browser settings.', 'error'); return;
+        }
+        const perm = Notification.permission === 'granted'
+          ? 'granted'
+          : await Notification.requestPermission();
+        if (perm !== 'granted') {
+          showToast('Permission denied. Enable notifications in browser settings.', 'error'); return;
+        }
+        _notifEnabled = true;
+        localStorage.setItem('tf_notif', 'on');
+        if (tog) tog.classList.add('on');
+        startNotifScheduler();
+        showToast('🔔 Notifications enabled!', 'success');
+      }
+    }
 
     /* ══════════════════════════════════════════════════
     KEYBOARD SHORTCUTS

@@ -66,9 +66,9 @@ def get_tasks():
     if status == "done":    query += " AND is_done=1"
     elif status == "pending": query += " AND is_done=0"
     elif status == "today":
-        query += " AND date(due_date)=date('now','localtime')"
+        query += " AND date(due_date)=date('now')"
     elif status == "overdue":
-        query += " AND due_date < strftime('%Y-%m-%dT%H:%M','now','localtime') AND is_done=0"
+        query += " AND due_date < strftime('%Y-%m-%dT%H:%M', 'now', 'localtime') AND is_done=0"
     if search: query += " AND title LIKE ?"; params.append(f"%{search}%")
     if sort == "due_date":  query += " ORDER BY due_date ASC"
     elif sort == "priority": query += " ORDER BY CASE priority WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 END"
@@ -159,8 +159,8 @@ def get_stats():
     total     = count("SELECT COUNT(*) FROM tasks WHERE user_id=?")
     completed = count("SELECT COUNT(*) FROM tasks WHERE is_done=1 AND user_id=?")
     pending   = count("SELECT COUNT(*) FROM tasks WHERE is_done=0 AND user_id=?")
-    today  = count("SELECT COUNT(*) FROM tasks WHERE date(due_date)=date('now','localtime') AND user_id=?")
-    overdue = count("SELECT COUNT(*) FROM tasks WHERE due_date < strftime('%Y-%m-%dT%H:%M','now','localtime') AND is_done=0 AND user_id=?")
+    today  = count("SELECT COUNT(*) FROM tasks WHERE date(due_date)=date('now') AND user_id=?")
+    overdue = count("SELECT COUNT(*) FROM tasks WHERE due_date < strftime('%Y-%m-%dT%H:%M', 'now', 'localtime') AND is_done=0 AND user_id=?")
 
     conn.close()
     progress = round((completed / total) * 100, 2) if total > 0 else 0
@@ -260,6 +260,14 @@ def update_profile():
     user = cursor.fetchone()
     if not user: conn.close(); return jsonify({"error": "User not found"}), 404
     updates = []; params = []
+    import re as _re
+    new_username = data.get("username", "").strip()
+    if new_username:
+        if len(new_username) < 3 or not _re.match(r"^[a-zA-Z0-9_]+$", new_username):
+            conn.close(); return jsonify({"error": "Username: min 3 chars, letters/numbers/underscores only"}), 400
+        cursor.execute("SELECT id FROM users WHERE username=? AND id!=?", (new_username, user_id))
+        if cursor.fetchone(): conn.close(); return jsonify({"error": "Username already taken"}), 400
+        updates.append("username=?"); params.append(new_username)
     display_name = data.get("display_name","").strip()
     if display_name: updates.append("display_name=?"); params.append(display_name)
     mobile = data.get("mobile","").strip()
@@ -317,6 +325,303 @@ def delete_account():
     cursor.execute("DELETE FROM users WHERE id=?", (user_id,))
     conn.commit(); conn.close()
     return jsonify({"message": "Account permanently deleted"})
+
+
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# OTP — Shared utilities
+# ══════════════════════════════════════════════════════════════════════════════
+import random, time, secrets
+import re as _re
+
+_otp_store   = {}   # key -> {otp, expires_at, ...}
+_token_store = {}   # reset_token -> {mobile, expires_at}
+
+# ── Fast2SMS — get free API key at fast2sms.com → Dev API ────────────────────
+FAST2SMS_KEY = "fV9zBZdprNoHDvYjxlMLhRSyWPA4gqc0uk3wETa1isFX2t7bGUDSRJnM4ce2tVbdo6WPaTOxliK3zmXp"   # <- paste your key here
+
+def _send_sms(mobile, otp):
+    """Send OTP via Fast2SMS. Returns (True, None) or (False, error_msg)."""
+    import urllib.request, json as _json
+    payload = _json.dumps({
+        "route": "otp",
+        "variables_values": str(otp),
+        "numbers": mobile,
+        "flash": 0
+    }).encode()
+    req = urllib.request.Request(
+        "https://www.fast2sms.com/dev/bulkV2",
+        data=payload, method="POST"
+    )
+    req.add_header("authorization", FAST2SMS_KEY)
+    req.add_header("Content-Type",  "application/json")
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            r = _json.loads(resp.read())
+            if r.get("return") is True:
+                return True, None
+            return False, r.get("message", "SMS failed")
+    except Exception as e:
+        return False, str(e)
+
+def _make_otp():
+    return str(random.randint(100000, 999999))
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# REGISTER WITH OTP
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.route("/api/register/send-otp", methods=["POST"])
+def reg_send_otp():
+    data     = request.json or {}
+    username = data.get("username", "").strip()
+    mobile   = data.get("mobile",   "").strip()
+    password = data.get("password", "")
+
+    # Validate
+    if not username or not mobile or not password:
+        return jsonify({"error": "All fields are required"}), 400
+    if len(username) < 3 or not _re.match(r"^[a-zA-Z0-9_]+$", username):
+        return jsonify({"error": "Username: min 3 chars, letters/numbers/underscores only"}), 400
+    if not mobile.isdigit() or len(mobile) != 10:
+        return jsonify({"error": "Mobile must be exactly 10 digits"}), 400
+    if len(password) < 4:
+        return jsonify({"error": "Password must be at least 4 characters"}), 400
+
+    # Check duplicates before sending OTP
+    conn   = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE username=?", (username,))
+    if cursor.fetchone():
+        conn.close()
+        return jsonify({"error": "Username already taken"}), 400
+    cursor.execute("SELECT id FROM users WHERE mobile=?", (mobile,))
+    if cursor.fetchone():
+        conn.close()
+        return jsonify({"error": "Mobile number already registered"}), 400
+    conn.close()
+
+    # Generate OTP and store with 10-min expiry
+    otp = _make_otp()
+    _otp_store["reg_" + mobile] = {
+        "otp":        otp,
+        "expires_at": time.time() + 600,
+        "username":   username,
+        "mobile":     mobile,
+        "password":   password
+    }
+
+    # Send SMS — if it fails in dev, still proceed and log OTP to terminal
+    ok, err = _send_sms(mobile, otp)
+    if not ok:
+        print(f"[REG OTP] SMS failed: {err}")
+        print(f"[REG OTP] *** DEV OTP for {mobile}: {otp} ***")
+        return jsonify({"message": "OTP ready", "dev": True}), 200
+
+    print(f"[REG OTP] Sent OTP to {mobile}")
+    return jsonify({"message": "OTP sent to your mobile number"}), 200
+
+
+@app.route("/api/register/verify-otp", methods=["POST"])
+def reg_verify_otp():
+    data   = request.json or {}
+    mobile = data.get("mobile", "").strip()
+    otp    = data.get("otp",    "").strip()
+
+    stored = _otp_store.get("reg_" + mobile)
+    if not stored:
+        return jsonify({"error": "OTP expired or not sent. Go back and try again."}), 400
+    if time.time() > stored["expires_at"]:
+        del _otp_store["reg_" + mobile]
+        return jsonify({"error": "OTP has expired. Go back and try again."}), 400
+    if stored["otp"] != otp:
+        return jsonify({"error": "Incorrect OTP. Please try again."}), 400
+
+    # OTP correct — create account now
+    username = stored["username"]
+    password = stored["password"]
+    del _otp_store["reg_" + mobile]
+
+    conn   = get_connection()
+    cursor = conn.cursor()
+    # Re-check uniqueness (in case of race condition)
+    cursor.execute("SELECT id FROM users WHERE username=?", (username,))
+    if cursor.fetchone():
+        conn.close()
+        return jsonify({"error": "Username was just taken. Go back and choose another."}), 400
+    cursor.execute("SELECT id FROM users WHERE mobile=?", (mobile,))
+    if cursor.fetchone():
+        conn.close()
+        return jsonify({"error": "Mobile number was just registered."}), 400
+
+    try:
+        cursor.execute(
+            "INSERT INTO users (username, display_name, password, mobile) VALUES (?,?,?,?)",
+            (username, username, generate_password_hash(password), mobile)
+        )
+        conn.commit()
+    except Exception as e:
+        conn.close()
+        return jsonify({"error": "Account creation failed: " + str(e)}), 400
+    conn.close()
+
+    print(f"[REG] Account created: {username} / {mobile}")
+    return jsonify({"message": "Account created successfully"}), 201
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# FORGOT PASSWORD WITH OTP
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.route("/api/forgot-password/send-otp", methods=["POST"])
+def fp_send_otp():
+    data   = request.json or {}
+    mobile = data.get("mobile", "").strip()
+
+    if not mobile.isdigit() or len(mobile) != 10:
+        return jsonify({"error": "Enter a valid 10-digit mobile number"}), 400
+
+    # Verify the mobile is registered
+    conn   = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE mobile=?", (mobile,))
+    if not cursor.fetchone():
+        conn.close()
+        return jsonify({"error": "No account found with this mobile number"}), 404
+    conn.close()
+
+    otp = _make_otp()
+    _otp_store[mobile] = {"otp": otp, "expires_at": time.time() + 600}
+
+    ok, err = _send_sms(mobile, otp)
+    if not ok:
+        print(f"[FP OTP] SMS failed: {err}")
+        print(f"[FP OTP] *** DEV OTP for {mobile}: {otp} ***")
+        return jsonify({"message": "OTP ready", "dev": True}), 200
+
+    print(f"[FP OTP] Sent OTP to {mobile}")
+    return jsonify({"message": "OTP sent to your mobile number"}), 200
+
+
+@app.route("/api/forgot-password/verify-otp", methods=["POST"])
+def fp_verify_otp():
+    data   = request.json or {}
+    mobile = data.get("mobile", "").strip()
+    otp    = data.get("otp",    "").strip()
+
+    stored = _otp_store.get(mobile)
+    if not stored:
+        return jsonify({"error": "OTP not sent or expired. Request a new OTP."}), 400
+    if time.time() > stored["expires_at"]:
+        del _otp_store[mobile]
+        return jsonify({"error": "OTP has expired. Request a new one."}), 400
+    if stored["otp"] != otp:
+        return jsonify({"error": "Incorrect OTP. Please try again."}), 400
+
+    # Issue short-lived reset token (5 min)
+    reset_token = secrets.token_urlsafe(32)
+    _token_store[reset_token] = {"mobile": mobile, "expires_at": time.time() + 300}
+    del _otp_store[mobile]
+
+    return jsonify({"message": "OTP verified", "reset_token": reset_token}), 200
+
+
+@app.route("/api/forgot-password/reset", methods=["POST"])
+def fp_reset_password():
+    data         = request.json or {}
+    reset_token  = data.get("reset_token",  "").strip()
+    new_password = data.get("new_password", "")
+
+    if not reset_token or not new_password:
+        return jsonify({"error": "Missing required fields"}), 400
+    if len(new_password) < 4:
+        return jsonify({"error": "Password must be at least 4 characters"}), 400
+
+    stored = _token_store.get(reset_token)
+    if not stored:
+        return jsonify({"error": "Invalid or expired session. Please start over."}), 400
+    if time.time() > stored["expires_at"]:
+        del _token_store[reset_token]
+        return jsonify({"error": "Session expired. Please start over."}), 400
+
+    mobile = stored["mobile"]
+    conn   = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "UPDATE users SET password=? WHERE mobile=?",
+        (generate_password_hash(new_password), mobile)
+    )
+    conn.commit()
+    conn.close()
+    del _token_store[reset_token]
+
+    print(f"[FP] Password reset for mobile: {mobile}")
+    return jsonify({"message": "Password reset successfully"}), 200
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# FORGOT USERNAME WITH OTP
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.route("/api/forgot-username/send-otp", methods=["POST"])
+def fu_send_otp():
+    data   = request.json or {}
+    mobile = data.get("mobile", "").strip()
+
+    if not mobile.isdigit() or len(mobile) != 10:
+        return jsonify({"error": "Enter a valid 10-digit mobile number"}), 400
+
+    conn   = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM users WHERE mobile=?", (mobile,))
+    if not cursor.fetchone():
+        conn.close()
+        return jsonify({"error": "No account found with this mobile number"}), 404
+    conn.close()
+
+    otp = _make_otp()
+    _otp_store["fu_" + mobile] = {"otp": otp, "expires_at": time.time() + 600}
+
+    ok, err = _send_sms(mobile, otp)
+    if not ok:
+        print(f"[FU OTP] SMS failed: {err}")
+        print(f"[FU OTP] *** DEV OTP for {mobile}: {otp} ***")
+        return jsonify({"message": "OTP ready", "dev": True}), 200
+
+    print(f"[FU OTP] Sent OTP to {mobile}")
+    return jsonify({"message": "OTP sent to your mobile number"}), 200
+
+
+@app.route("/api/forgot-username/verify-otp", methods=["POST"])
+def fu_verify_otp():
+    data   = request.json or {}
+    mobile = data.get("mobile", "").strip()
+    otp    = data.get("otp",    "").strip()
+
+    key    = "fu_" + mobile
+    stored = _otp_store.get(key)
+    if not stored:
+        return jsonify({"error": "OTP not sent or expired. Request a new OTP."}), 400
+    if time.time() > stored["expires_at"]:
+        del _otp_store[key]
+        return jsonify({"error": "OTP has expired. Request a new one."}), 400
+    if stored["otp"] != otp:
+        return jsonify({"error": "Incorrect OTP. Please try again."}), 400
+
+    del _otp_store[key]
+
+    conn   = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT username FROM users WHERE mobile=?", (mobile,))
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return jsonify({"error": "Account not found."}), 404
+
+    return jsonify({"message": "OTP verified", "username": row["username"]}), 200
 
 
 if __name__ == "__main__":
