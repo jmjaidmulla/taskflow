@@ -1,366 +1,20 @@
 <!DOCTYPE html>
-    <html lang="en" data-theme="light">
-    <head>
+<html lang="en" data-theme="light">
+<head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>TaskFlow</title>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
-    <style>
-    :root {
-    --brand:#2563EB;--brand-dark:#1D4ED8;--brand-glow:rgba(37,99,235,.15);
-    --ink:#0F172A;--ink2:#475569;--ink3:#94A3B8;--ink4:#CBD5E1;
-    --surface:#F8FAFC;--surface2:#F1F5F9;--card:#FFFFFF;
-    --border:#E2E8F0;--border2:#CBD5E1;
-    --green:#059669;--green-bg:#ECFDF5;
-    --red:#DC2626;--red-bg:#FEF2F2;
-    --amber:#D97706;--amber-bg:#FFFBEB;
-    --purple:#7C3AED;--purple-bg:#F5F3FF;
-    --sb-bg:#0F172A;--sb-bdr:#1E293B;--sb-txt:#94A3B8;
-    --sb-hov:#1E293B;--sb-act:rgba(37,99,235,.12);--sb-atxt:#60A5FA;
-    --sh-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-    --sh-md:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
-    --sh-lg:0 12px 40px rgba(0,0,0,.12),0 4px 16px rgba(0,0,0,.06);
-    --sh-xl:0 24px 64px rgba(0,0,0,.18);
-    --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:20px;
-    }
-    [data-theme="dark"]{
-    --ink:#F1F5F9;--ink2:#94A3B8;--ink3:#64748B;--ink4:#334155;
-    --surface:#1E293B;--surface2:#0F172A;--card:#1E293B;
-    --border:#334155;--border2:#475569;--brand-glow:rgba(96,165,250,.12);
-    --green-bg:#064E3B;--red-bg:#450A0A;--amber-bg:#451A03;--purple-bg:#2E1065;
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    html{font-size:14px;}
-    body{font-family:'Sora',sans-serif;background:var(--surface2);color:var(--ink);min-height:100vh;display:flex;overflow:hidden;-webkit-font-smoothing:antialiased;}
 
-    /* ─── AUTH ───────────────────────────────────────────────── */
-    #auth-screen{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 40%,#1D4ED8 100%);position:relative;overflow:hidden;}
-    #auth-screen::before,#auth-screen::after{content:'';position:absolute;border-radius:50%;filter:blur(80px);opacity:.22;animation:orb 9s ease-in-out infinite alternate;}
-    #auth-screen::before{width:520px;height:520px;background:radial-gradient(circle,#3B82F6,transparent);top:-120px;left:-120px;}
-    #auth-screen::after{width:420px;height:420px;background:radial-gradient(circle,#F59E0B,transparent);bottom:-90px;right:-90px;animation-delay:-4s;}
-    @keyframes orb{from{transform:translate(0,0) scale(1);}to{transform:translate(30px,25px) scale(1.08);}}
-    .auth-card{background:rgba(255,255,255,.97);border-radius:var(--r-xl);padding:40px 36px;width:430px;max-width:95vw;box-shadow:var(--sh-xl);animation:authIn .5s cubic-bezier(.34,1.56,.64,1);position:relative;z-index:1;}
-    @keyframes authIn{from{opacity:0;transform:translateY(32px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
-    .auth-brand{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
-    .auth-logo{width:38px;height:38px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 4px 12px rgba(37,99,235,.4);}
-    .auth-name{font-size:22px;font-weight:800;color:#0F172A;letter-spacing:-.5px;}
-    .auth-name span{color:#2563EB;}
-    .auth-tag{font-size:12px;color:#64748B;margin-bottom:26px;}
-    .auth-tabs{display:flex;background:#F1F5F9;border-radius:10px;padding:3px;margin-bottom:22px;}
-    .auth-tab{flex:1;padding:8px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;border-radius:8px;color:#64748B;transition:all .2s;font-family:'Sora',sans-serif;}
-    .auth-tab.active{background:#fff;color:#2563EB;box-shadow:0 1px 4px rgba(0,0,0,.08);}
-    .auth-form{display:none;flex-direction:column;gap:14px;}
-    .auth-form.active{display:flex;}
-    .fl{font-size:11px;font-weight:700;color:#374151;letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px;display:block;}
-    .fw{position:relative;}
-    .fi{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;color:#94A3B8;pointer-events:none;}
-    .finput{width:100%;padding:10px 12px 10px 38px;border:1.5px solid #E2E8F0;border-radius:var(--r-sm);font-size:13px;font-family:'Sora',sans-serif;background:#F8FAFC;color:#0F172A;outline:none;transition:all .2s;}
-    .finput:focus{border-color:#2563EB;background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1);}
-    .fhint{font-size:11px;color:#94A3B8;margin-top:3px;}
-    .auth-btn{width:100%;padding:12px;background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border:none;border-radius:var(--r-sm);font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;box-shadow:0 4px 14px rgba(37,99,235,.4);transition:all .2s;margin-top:4px;}
-    .auth-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.5);}
-    .auth-err{font-size:12px;color:#DC2626;text-align:center;min-height:16px;font-weight:500;}
-    .auth-forgot{text-align:right;margin-top:-8px;margin-bottom:2px;}
-    .auth-forgot a{font-size:11px;color:#2563EB;cursor:pointer;font-weight:600;}
-    .auth-forgot a:hover{text-decoration:underline;}
-    .rg-step{display:none;flex-direction:column;gap:14px;}
-    .rg-step.active{display:flex;}
-    .fp-step{display:none;flex-direction:column;gap:14px;}
-    .fp-step.active{display:flex;}
-    .fp-back{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#64748B;cursor:pointer;font-weight:600;margin-bottom:2px;}
-    .fp-back:hover{color:#2563EB;}
-    .fp-hero{text-align:center;padding:6px 0 2px;}
-    .otp-row{display:flex;gap:8px;justify-content:center;margin:4px 0;}
-    .otp-box{width:42px;height:50px;text-align:center;font-size:22px;font-weight:700;border:1.5px solid #E2E8F0;border-radius:8px;font-family:'JetBrains Mono',monospace;background:#F8FAFC;color:#0F172A;outline:none;transition:all .2s;caret-color:transparent;}
-    .otp-box:focus{border-color:#2563EB;background:#EFF6FF;box-shadow:0 0 0 3px rgba(37,99,235,.1);}
-    .otp-box.done{border-color:#2563EB;background:#EFF6FF;}
-    .otp-box.shake{border-color:#DC2626 !important;background:#FEF2F2;}
-    .otp-meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-top:4px;}
-    .otp-timer{color:#64748B;font-family:'JetBrains Mono',monospace;}
-    .otp-resend{color:#2563EB;cursor:pointer;font-weight:600;}
-    .otp-resend:hover{text-decoration:underline;}
-    .otp-resend.off{color:#CBD5E1;pointer-events:none;}
-    .auth-ok{font-size:12px;color:#059669;text-align:center;font-weight:600;min-height:14px;}
+    <!-- App styles -->
+    <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body>
 
-    /* ─── APP SHELL ──────────────────────────────────────────── */
-    #app{display:none;width:100%;height:100vh;}
-    #app.visible{display:flex;}
-
-    /* ─── SIDEBAR ────────────────────────────────────────────── */
-    .sidebar{width:230px;min-width:230px;background:var(--sb-bg);display:flex;flex-direction:column;height:100vh;overflow-y:auto;border-right:1px solid var(--sb-bdr);}
-    .sb-hd{padding:22px 20px 18px;border-bottom:1px solid var(--sb-bdr);}
-    .sb-logo{display:flex;align-items:center;gap:10px;}
-    .sb-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#2563EB,#1D4ED8);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 3px 8px rgba(37,99,235,.4);}
-    .sb-logo-txt{font-size:18px;font-weight:800;color:#F1F5F9;letter-spacing:-.3px;}
-    .sb-logo-txt span{color:#60A5FA;}
-    .sb-sec{padding:18px 12px 6px;}
-    .sb-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#334155;padding:0 8px;margin-bottom:4px;}
-    .nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r-sm);cursor:pointer;color:var(--sb-txt);font-size:13px;font-weight:500;transition:all .15s;position:relative;margin-bottom:2px;}
-    .nav-item:hover{background:var(--sb-hov);color:#E2E8F0;}
-    .nav-item.active{background:var(--sb-act);color:var(--sb-atxt);}
-    .nav-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:#60A5FA;border-radius:0 2px 2px 0;}
-    .nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
-    .nav-badge{margin-left:auto;background:#1E293B;color:#64748B;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;font-family:'JetBrains Mono',monospace;min-width:22px;text-align:center;}
-    .nav-item.active .nav-badge{background:rgba(96,165,250,.15);color:#60A5FA;}
-    .sb-spacer{flex:1;}
-    .sb-footer{padding:12px;border-top:1px solid var(--sb-bdr);}
-    .sb-user{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--r-sm);cursor:pointer;transition:background .15s;}
-    .sb-user:hover{background:var(--sb-hov);}
-    .av-wrap{position:relative;}
-    .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;box-shadow:0 2px 8px rgba(37,99,235,.3);overflow:hidden;}
-    .av img{width:100%;height:100%;object-fit:cover;}
-    .av-dot{position:absolute;bottom:1px;right:1px;width:8px;height:8px;background:#10B981;border-radius:50%;border:2px solid var(--sb-bg);}
-    .sb-uname{font-size:12px;font-weight:600;color:#E2E8F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .sb-urole{font-size:10px;color:#475569;}
-
-    /* ─── MAIN ───────────────────────────────────────────────── */
-    .main-content{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
-    .view{display:none;flex:1;flex-direction:column;overflow:hidden;}
-    .view.active{display:flex;}
-
-    /* ─── TOP BAR ────────────────────────────────────────────── */
-    .top-bar{background:var(--card);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--sh-sm);}
-    .top-bar-title{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.3px;flex:1;}
-    .search-box{position:relative;}
-    .search-box input{padding:8px 14px 8px 36px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-family:'Sora',sans-serif;background:var(--surface);color:var(--ink);width:210px;outline:none;transition:all .25s;}
-    .search-box input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow);width:250px;background:var(--card);}
-    .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink3);font-size:14px;pointer-events:none;}
-    .add-btn{display:flex;align-items:center;gap:6px;padding:9px 18px;background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;box-shadow:0 3px 10px rgba(37,99,235,.35);transition:all .2s;white-space:nowrap;}
-    .add-btn:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(37,99,235,.45);}
-
-    /* ─── FILTER BAR ─────────────────────────────────────────── */
-    .filter-bar{background:var(--card);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-    .f-chip{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);color:var(--ink2);background:var(--card);transition:all .15s;font-family:'Sora',sans-serif;}
-    .f-chip:hover{border-color:var(--brand);color:var(--brand);}
-    .f-chip.on{background:var(--ink);color:#fff;border-color:var(--ink);}
-    .f-chip.on.today{background:var(--amber);border-color:var(--amber);}
-    .f-chip.on.pend{background:var(--brand);border-color:var(--brand);}
-    .f-chip.on.done{background:var(--green);border-color:var(--green);}
-    .f-chip.on.over{background:var(--red);border-color:var(--red);}
-    .cat-tab-bar{background:var(--card);border-bottom:1px solid var(--border);padding:0 28px;display:flex;}
-    .cat-tab{padding:10px 16px;font-size:12px;font-weight:600;cursor:pointer;color:var(--ink2);border-bottom:2px solid transparent;transition:all .15s;margin-bottom:-1px;font-family:'Sora',sans-serif;}
-    .cat-tab:hover{color:var(--brand);}
-    .cat-tab.on{color:var(--brand);border-bottom-color:var(--brand);}
-    .sort-sel{margin-left:auto;padding:5px 10px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:12px;font-family:'Sora',sans-serif;background:var(--card);color:var(--ink2);cursor:pointer;outline:none;}
-
-    /* ─── TASK LIST ──────────────────────────────────────────── */
-    .task-scroll{flex:1;overflow-y:auto;padding:18px 28px;}
-    .task-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:var(--ink3);}
-    .task-empty .ei{font-size:52px;margin-bottom:14px;}
-    .task-empty h3{font-size:16px;font-weight:700;color:var(--ink2);margin-bottom:6px;}
-    .task-card{display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:14px 16px;margin-bottom:8px;transition:all .2s;animation:taskIn .25s ease;box-shadow:var(--sh-sm);}
-    @keyframes taskIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-    .task-card:hover{box-shadow:var(--sh-md);border-color:var(--border2);transform:translateY(-1px);}
-    .task-card.done-card{opacity:.55;}
-    .task-card.done-card .t-title{text-decoration:line-through;color:var(--ink3);}
-    .t-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--border2);cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s;background:var(--card);}
-    .t-check:hover{border-color:var(--green);}
-    .t-check.checked{background:var(--green);border-color:var(--green);color:#fff;font-size:11px;}
-    .t-pri{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px;}
-    .t-pri.high{background:var(--red);box-shadow:0 0 6px rgba(220,38,38,.4);}
-    .t-pri.medium{background:var(--amber);}
-    .t-pri.low{background:var(--green);}
-    .t-body{flex:1;min-width:0;}
-    .t-title{font-size:13px;font-weight:600;color:var(--ink);line-height:1.4;}
-    .t-desc{font-size:12px;color:var(--ink3);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .t-meta{display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:wrap;}
-    .t-tag{font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;}
-    .t-tag.work{background:#DBEAFE;color:#1E40AF;}
-    .t-tag.personal{background:var(--purple-bg);color:var(--purple);}
-    .t-tag.study{background:var(--green-bg);color:#065F46;}
-    .t-due{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
-    .t-due.overdue{background:var(--red-bg);color:var(--red);}
-    .t-due.today{background:var(--amber-bg);color:var(--amber);}
-    .t-due.normal{background:var(--surface);color:var(--ink3);}
-    .t-actions{display:flex;gap:3px;flex-shrink:0;}
-    .t-btn{width:30px;height:30px;border-radius:var(--r-sm);border:none;background:transparent;cursor:pointer;font-size:14px;color:var(--ink3);display:flex;align-items:center;justify-content:center;transition:all .15s;}
-    .t-btn:hover{background:var(--surface);color:var(--ink);}
-    .t-btn.del:hover{background:var(--red-bg);color:var(--red);}
-    .task-footer{padding:10px 28px;border-top:1px solid var(--border);background:var(--card);display:flex;gap:20px;align-items:center;}
-    .tf-stat{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink3);font-weight:500;}
-    .tf-dot{width:7px;height:7px;border-radius:50%;}
-
-    /* ─── OVERVIEW ───────────────────────────────────────────── */
-    #view-overview{padding:28px;overflow-y:auto;background:var(--surface2);}
-    .ov-hero{margin-bottom:24px;}
-    .ov-greeting{font-size:24px;font-weight:800;color:var(--ink);letter-spacing:-.5px;}
-    .ov-date{font-size:12px;color:var(--ink3);margin-top:3px;font-family:'JetBrains Mono',monospace;}
-    .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
-    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:18px;box-shadow:var(--sh-sm);transition:all .2s;position:relative;overflow:hidden;}
-    .stat-card::after{content:attr(data-icon);position:absolute;right:14px;top:14px;font-size:28px;opacity:.1;}
-    .stat-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px);}
-    .sc-label{font-size:11px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
-    .sc-value{font-size:32px;font-weight:800;line-height:1;font-family:'JetBrains Mono',monospace;}
-    .sc-sub{font-size:11px;color:var(--ink3);margin-top:4px;}
-    .stat-card.c-blue{border-top:3px solid var(--brand);}.stat-card.c-blue .sc-value{color:var(--brand);}
-    .stat-card.c-amber{border-top:3px solid var(--amber);}.stat-card.c-amber .sc-value{color:var(--amber);}
-    .stat-card.c-green{border-top:3px solid var(--green);}.stat-card.c-green .sc-value{color:var(--green);}
-    .stat-card.c-red{border-top:3px solid var(--red);}.stat-card.c-red .sc-value{color:var(--red);}
-    .ov-bottom{display:grid;grid-template-columns:1fr 300px;gap:18px;}
-    .ov-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);padding:22px;box-shadow:var(--sh-sm);}
-    .ov-card-title{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;}
-    .ov-card-title a{font-size:12px;color:var(--brand);text-decoration:none;font-weight:600;}
-    .ring-center{display:flex;flex-direction:column;align-items:center;}
-    .ring-legend{margin-top:16px;width:100%;display:flex;flex-direction:column;gap:8px;}
-    .rl-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);}
-    .rl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-    .rl-val{margin-left:auto;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--ink);}
-    .mini-t{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
-    .mini-t:last-child{border-bottom:none;}
-    .mini-t-name{flex:1;font-size:13px;color:var(--ink);}
-    .mini-t-name.done{text-decoration:line-through;color:var(--ink3);}
-    .mini-t-st{font-size:11px;font-weight:700;}
-    .mini-t-st.ov{color:var(--red);}.mini-t-st.tod{color:var(--amber);}.mini-t-st.done{color:var(--green);}
-
-    /* ─── CATEGORIES ─────────────────────────────────────────── */
-    #view-categories{padding:28px;overflow-y:auto;background:var(--surface2);}
-    #view-categories h2{font-size:20px;font-weight:800;margin-bottom:20px;}
-    .cat-card-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:12px;box-shadow:var(--sh-sm);overflow:hidden;}
-    .cat-card-head{display:flex;align-items:center;gap:14px;padding:16px 20px;cursor:pointer;transition:background .15s;}
-    .cat-card-head:hover{background:var(--surface);}
-    .cat-ci{font-size:22px;}
-    .cat-cd{flex:1;}
-    .cat-cd-name{font-size:14px;font-weight:700;color:var(--ink);}
-    .cat-cd-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
-    .cat-right{display:flex;align-items:center;gap:12px;}
-    .cat-bar-track{width:90px;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
-    .cat-bar-fill{height:100%;border-radius:3px;transition:width .5s;}
-    .cat-pct{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--ink2);min-width:36px;text-align:right;}
-    .cat-chev{color:var(--ink3);font-size:14px;transition:transform .2s;}
-    .cat-card-wrap.open .cat-chev{transform:rotate(90deg);}
-    .cat-body{display:none;padding:0 20px 14px;border-top:1px solid var(--border);}
-    .cat-card-wrap.open .cat-body{display:block;}
-    .cat-t-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
-    .cat-t-item:last-child{border-bottom:none;}
-    .cat-mini-cb{width:15px;height:15px;border:2px solid var(--border2);border-radius:4px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-    .cat-mini-cb.ck{background:var(--green);border-color:var(--green);color:#fff;font-size:8px;}
-    .cat-t-name{flex:1;color:var(--ink);}
-    .cat-t-name.done{text-decoration:line-through;color:var(--ink3);}
-    .ov-badge{font-size:10px;font-weight:700;color:var(--red);background:var(--red-bg);padding:2px 8px;border-radius:20px;}
-
-    /* ─── SETTINGS ───────────────────────────────────────────── */
-    #view-settings{padding:28px;overflow-y:auto;background:var(--surface2);}
-    #view-settings h2{font-size:20px;font-weight:800;margin-bottom:22px;}
-    .s-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);margin-bottom:16px;box-shadow:var(--sh-sm);overflow:hidden;}
-    .s-profile-block{display:flex;align-items:center;gap:16px;padding:22px;}
-    .s-av{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0;box-shadow:0 4px 12px rgba(37,99,235,.3);overflow:hidden;cursor:pointer;position:relative;}
-    .s-av img{width:100%;height:100%;object-fit:cover;}
-    .s-av-ov{position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;border-radius:50%;font-size:18px;}
-    .s-av:hover .s-av-ov{opacity:1;}
-    .s-uname{font-size:17px;font-weight:700;color:var(--ink);}
-    .s-usub{font-size:12px;color:var(--ink3);margin-top:4px;}
-    .mob-badge{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);padding:3px 10px;border-radius:20px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--ink2);}
-    .panel-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:12px 20px 4px;}
-    .s-row{display:flex;align-items:center;gap:14px;padding:14px 20px;border-top:1px solid var(--border);cursor:pointer;transition:background .15s;}
-    .s-row:hover{background:var(--surface);}
-    .s-row-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0;}
-    .s-row-body{flex:1;}
-    .s-row-label{font-size:13px;font-weight:600;color:var(--ink);}
-    .s-row-desc{font-size:11px;color:var(--ink3);margin-top:1px;}
-    .s-row-right{color:var(--ink3);font-size:14px;display:flex;align-items:center;gap:6px;}
-    .s-row.danger .s-row-label{color:var(--red);}
-    .s-row.danger:hover{background:var(--red-bg);}
-    .tog{width:42px;height:24px;background:var(--border2);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
-    .tog.on{background:var(--green);}
-    .tog::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
-    .tog.on::after{transform:translateX(18px);}
-
-    /* ─── OVERLAYS ───────────────────────────────────────────── */
-    .overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(6px);z-index:100;align-items:center;justify-content:center;}
-    .overlay.open{display:flex;}
-    .modal-box{background:var(--card);border-radius:var(--r-lg);width:500px;max-width:95vw;padding:30px;box-shadow:var(--sh-xl);animation:modalIn .28s cubic-bezier(.34,1.4,.64,1);border:1px solid var(--border);max-height:90vh;overflow-y:auto;}
-    @keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
-    .modal-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
-    .modal-ttl{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-.3px;}
-    .modal-sub{font-size:12px;color:var(--ink3);margin-top:3px;}
-    .modal-x{width:30px;height:30px;border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;background:var(--surface);color:var(--ink2);display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;}
-    .modal-x:hover{background:var(--border);}
-    .fg{margin-bottom:16px;}
-    .fg label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;}
-    .fg .req{color:var(--red);}
-    .fg input,.fg select,.fg textarea{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-family:'Sora',sans-serif;background:var(--surface);color:var(--ink);outline:none;transition:all .2s;}
-    .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow);background:var(--card);}
-    .fg textarea{resize:vertical;min-height:76px;}
-    .fg-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-    .fg-err{font-size:11px;color:var(--red);margin-top:4px;}
-    .pri-btns{display:flex;gap:8px;}
-    .pri-btn{flex:1;padding:9px;border-radius:var(--r-sm);border:1.5px solid var(--border);cursor:pointer;font-size:12px;font-weight:700;font-family:'Sora',sans-serif;background:var(--surface);color:var(--ink2);transition:all .15s;text-align:center;}
-    .pri-btn[data-p="high"].sel{background:var(--red-bg);border-color:var(--red);color:var(--red);}
-    .pri-btn[data-p="medium"].sel{background:var(--amber-bg);border-color:var(--amber);color:var(--amber);}
-    .pri-btn[data-p="low"].sel{background:var(--green-bg);border-color:var(--green);color:var(--green);}
-    .modal-ft{display:flex;gap:10px;margin-top:24px;}
-    .btn-sec{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;background:var(--card);color:var(--ink2);font-family:'Sora',sans-serif;transition:background .15s;}
-    .btn-sec:hover{background:var(--surface);}
-    .btn-pri{flex:2;padding:11px;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;font-family:'Sora',sans-serif;box-shadow:0 3px 10px rgba(37,99,235,.35);transition:all .2s;}
-    .btn-pri:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(37,99,235,.4);}
-    .btn-danger{flex:1;padding:11px;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;background:var(--red);color:#fff;font-family:'Sora',sans-serif;transition:all .2s;}
-    .btn-danger:hover{background:#B91C1C;}
-
-    /* ─── PROFILE MODAL ──────────────────────────────────────── */
-    .prof-img-sec{display:flex;flex-direction:column;align-items:center;gap:12px;padding:20px;background:var(--surface);border-radius:var(--r-md);margin-bottom:20px;border:2px dashed var(--border);}
-    .prof-prev{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;overflow:hidden;border:3px solid var(--border);box-shadow:var(--sh-md);}
-    .prof-prev img{width:100%;height:100%;object-fit:cover;}
-    .prof-img-btns{display:flex;gap:8px;}
-    .img-up-btn{padding:7px 14px;border:1.5px solid var(--brand);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;background:var(--brand-glow);color:var(--brand);font-family:'Sora',sans-serif;transition:all .15s;}
-    .img-up-btn:hover{background:var(--brand);color:#fff;}
-    .img-rm-btn{padding:7px 14px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--ink3);font-family:'Sora',sans-serif;transition:all .15s;}
-    .img-rm-btn:hover{border-color:var(--red);color:var(--red);}
-    .prof-hint{font-size:11px;color:var(--ink3);text-align:center;}
-    .sec-div{display:flex;align-items:center;gap:10px;margin:20px 0 16px;}
-    .sec-div span{font-size:11px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
-    .sec-div::before,.sec-div::after{content:'';flex:1;height:1px;background:var(--border);}
-
-    /* ─── CROPPER ────────────────────────────────────────────── */
-    #cropper-overlay{z-index:200;}
-    .cropper-modal{background:var(--card);border-radius:var(--r-lg);width:520px;max-width:95vw;padding:28px;box-shadow:var(--sh-xl);animation:modalIn .28s ease;border:1px solid var(--border);}
-    .crop-title{font-size:17px;font-weight:800;color:var(--ink);margin-bottom:4px;}
-    .crop-sub{font-size:12px;color:var(--ink3);margin-bottom:18px;}
-    .crop-stage{position:relative;width:100%;height:320px;background:#111;border-radius:var(--r-md);overflow:hidden;cursor:crosshair;user-select:none;}
-    .crop-img{position:absolute;transform-origin:top left;}
-    .crop-box{position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.5);cursor:move;box-sizing:border-box;}
-    .crop-corner{position:absolute;width:12px;height:12px;background:#fff;border-radius:2px;}
-    .crop-corner.tl{top:-6px;left:-6px;cursor:nw-resize;}
-    .crop-corner.tr{top:-6px;right:-6px;cursor:ne-resize;}
-    .crop-corner.bl{bottom:-6px;left:-6px;cursor:sw-resize;}
-    .crop-corner.br{bottom:-6px;right:-6px;cursor:se-resize;}
-    .crop-guide{position:absolute;background:rgba(255,255,255,.2);pointer-events:none;}
-    .crop-gh{width:100%;height:1px;}
-    .crop-gv{height:100%;width:1px;}
-    .crop-controls{display:flex;align-items:center;gap:12px;margin-top:14px;}
-    .crop-zoom-wrap{flex:1;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);}
-    .crop-zoom-wrap input[type=range]{flex:1;accent-color:var(--brand);cursor:pointer;}
-    .crop-ft{display:flex;gap:10px;margin-top:16px;}
-
-    /* ─── CONFIRM BOX ────────────────────────────────────────── */
-    .confirm-box{background:var(--card);border-radius:var(--r-lg);padding:28px;width:360px;max-width:95vw;box-shadow:var(--sh-xl);animation:modalIn .25s ease;border:1px solid var(--border);}
-    .confirm-icon{font-size:36px;margin-bottom:12px;}
-    .confirm-ttl{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:8px;}
-    .confirm-msg{font-size:13px;color:var(--ink2);margin-bottom:22px;line-height:1.6;}
-    .confirm-btns{display:flex;gap:10px;}
-    .del-form{margin-bottom:20px;}
-    .del-form label{font-size:11px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;}
-    .del-form input{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-family:'Sora',sans-serif;background:var(--surface);color:var(--ink);outline:none;transition:all .2s;}
-    .del-form input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.1);}
-    .del-err{font-size:11px;color:var(--red);margin-top:4px;min-height:14px;}
-
-    /* ─── TOAST ──────────────────────────────────────────────── */
-    #toast{position:fixed;bottom:28px;right:28px;z-index:500;padding:13px 20px;border-radius:var(--r-md);font-size:13px;font-weight:600;box-shadow:var(--sh-lg);transform:translateY(100px);opacity:0;transition:all .35s cubic-bezier(.34,1.4,.64,1);max-width:300px;pointer-events:none;}
-    #toast.show{transform:translateY(0);opacity:1;}
-    #toast.info{background:#0F172A;color:#F1F5F9;}
-    #toast.success{background:var(--green);color:#fff;}
-    #toast.error{background:var(--red);color:#fff;}
-
-    /* ─── SPINNER ────────────────────────────────────────────── */
-    .spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .6s linear infinite;margin:50px auto;}
-    @keyframes spin{to{transform:rotate(360deg);}}
-    ::-webkit-scrollbar{width:5px;height:5px;}
-    ::-webkit-scrollbar-track{background:transparent;}
-    ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
-    </style>
-    </head>
-    <body>
 
     <!-- ══════════ AUTH ══════════════════════════════════════════ -->
     <div id="auth-screen">
@@ -496,7 +150,9 @@
         </div>
 
         <div class="auth-form" id="register-form">
-          <!-- Step 1: Details -->
+
+
+          <!-- Step 1: Fill in your details -->
           <div class="rg-step active" id="rg-s1">
             <div><label class="fl">Username</label>
               <div class="fw"><span class="fi">👤</span>
@@ -510,7 +166,7 @@
               <input class="finput" type="password" id="rg-p" placeholder="Min. 4 characters"/></div></div>
             <div class="auth-err" id="rg-err"></div>
             <button class="auth-btn" onclick="rgSendOtp()">Send OTP →</button>
-          </div>
+          </div><!-- /rg-s1 -->
           <!-- Step 2: Verify OTP -->
           <div class="rg-step" id="rg-s2">
             <div style="text-align:center;padding:4px 0 2px">
@@ -582,6 +238,8 @@
 
     <div class="main-content">
 
+
+
         <!-- TASKS VIEW -->
         <div class="view active" id="view-tasks">
         <div class="top-bar">
@@ -619,6 +277,8 @@
         </div>
         </div>
 
+
+
         <!-- OVERVIEW VIEW -->
         <div class="view" id="view-overview">
         <div class="ov-hero"><div class="ov-greeting" id="ov-greet">Good morning 👋</div><div class="ov-date" id="ov-date"></div></div>
@@ -652,11 +312,15 @@
         </div>
         </div>
 
+
+
         <!-- CATEGORIES VIEW -->
         <div class="view" id="view-categories">
         <h2>Categories</h2>
         <div id="cat-list"><div class="spinner"></div></div>
         </div>
+
+
 
         <!-- SETTINGS VIEW -->
         <div class="view" id="view-settings">
@@ -702,6 +366,8 @@
     </div>
     </div>
 
+
+
     <!-- ══════════ MODAL: ADD/EDIT TASK ═════════════════════════ -->
     <div class="overlay" id="task-overlay">
     <div class="modal-box">
@@ -729,6 +395,8 @@
     </div>
     </div>
 
+
+
     <!-- ══════════ MODAL: EDIT PROFILE ══════════════════════════ -->
     <div class="overlay" id="profile-overlay">
     <div class="modal-box">
@@ -747,7 +415,34 @@
         </div>
         <div class="fg"><label>Username</label><input type="text" id="prof-username" placeholder="e.g. john_doe" maxlength="30"/><div style="font-size:11px;color:#94A3B8;margin-top:3px">Letters, numbers and underscores only</div></div>
         <div class="fg"><label> Name</label><input type="text" id="prof-name" placeholder="How you want to be called"/></div>
-        <div class="fg"><label>Mobile Number</label><input type="tel" id="prof-mobile" placeholder="10-digit mobile number" maxlength="10"/></div>
+        <div class="fg">
+          <label>Mobile Number</label>
+          <div class="mob-field-row">
+            <input type="tel" id="prof-mobile" placeholder="10-digit mobile number" maxlength="10" oninput="onProfMobileInput()"/>
+            <button id="mob-send-otp-btn" style="display:none" onclick="profMobileSendOtp(false)">Send OTP</button>
+            <span id="mob-verified-badge">&#x2705; Verified</span>
+          </div>
+          <div class="mob-otp-panel" id="mob-otp-panel">
+            <div class="mob-otp-lbl" id="mob-otp-lbl">Enter the 6-digit OTP sent to your number</div>
+            <div class="mob-otp-boxes">
+              <input class="otp-box" type="tel" maxlength="1" id="mob-ob0" oninput="mobOtpIn(0)" onkeydown="mobOtpKey(event,0)"/>
+              <input class="otp-box" type="tel" maxlength="1" id="mob-ob1" oninput="mobOtpIn(1)" onkeydown="mobOtpKey(event,1)"/>
+              <input class="otp-box" type="tel" maxlength="1" id="mob-ob2" oninput="mobOtpIn(2)" onkeydown="mobOtpKey(event,2)"/>
+              <input class="otp-box" type="tel" maxlength="1" id="mob-ob3" oninput="mobOtpIn(3)" onkeydown="mobOtpKey(event,3)"/>
+              <input class="otp-box" type="tel" maxlength="1" id="mob-ob4" oninput="mobOtpIn(4)" onkeydown="mobOtpKey(event,4)"/>
+              <input class="otp-box" type="tel" maxlength="1" id="mob-ob5" oninput="mobOtpIn(5)" onkeydown="mobOtpKey(event,5)"/>
+            </div>
+            <div class="mob-otp-meta">
+              <span class="otp-timer" id="mob-otp-timer"></span>
+              <span class="otp-resend off" id="mob-otp-resend" onclick="profMobileSendOtp(true)">Resend OTP</span>
+            </div>
+            <div class="mob-otp-err" id="mob-otp-err"></div>
+            <div class="mob-otp-btns">
+              <button class="mob-otp-cancel" onclick="cancelMobOtp()">Cancel</button>
+              <button class="mob-otp-verify" onclick="profMobileVerifyOtp()">Verify &#38; Save &#8594;</button>
+            </div>
+          </div>
+        </div>
         <div class="sec-div"><span>Change Password (optional)</span></div>
         <div class="fg"><label>Current Password</label><input type="password" id="prof-curr" placeholder="Required only if changing password"/></div>
         <div class="fg"><label>New Password</label><input type="password" id="prof-new" placeholder="Leave empty to keep current"/></div>
@@ -759,6 +454,8 @@
         </div>
     </div>
     </div>
+
+
 
     <!-- ══════════ MODAL: IMAGE CROPPER ═════════════════════════ -->
     <div class="overlay" id="cropper-overlay">
@@ -791,6 +488,8 @@
     </div>
     </div>
 
+
+
     <!-- ══════════ CONFIRM: DELETE TASK ═════════════════════════ -->
     <div class="overlay" id="del-task-overlay">
     <div class="confirm-box">
@@ -803,6 +502,8 @@
         </div>
     </div>
     </div>
+
+
 
     <!-- ══════════ CONFIRM: LOGOUT ═══════════════════════════════ -->
     <div class="overlay" id="logout-overlay">
@@ -817,6 +518,8 @@
     </div>
     </div>
 
+
+    
     <!-- ══════════ CONFIRM: DELETE ACCOUNT ══════════════════════ -->
     <div class="overlay" id="del-acc-overlay">
     <div class="confirm-box">
@@ -837,1119 +540,25 @@
 
     <div id="toast"></div>
 
+    <!-- JS load order matters:
+         1. config.js   — API URL + global state (must be first)
+         2. auth.js     — login / register / forgot flows
+         3. tasks.js    — task CRUD, render, filter, search
+         4. profile.js  — edit profile + image cropper
+         5. notifications.js — push notifications
+         6. ui.js       — navigation, dark mode, helpers, keyboard shortcuts (last)
+    -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/tasks.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/ui.js"></script>
+
+    <!-- Boot: apply theme and auto-login if token exists -->
     <script>
-    /* ══════════════════════════════════════════════════
-    CONFIG
-    ══════════════════════════════════════════════════ */
-    const API = 'http://127.0.0.1:5000/api';
-
-    /* ══════════════════════════════════════════════════
-    STATE
-    ══════════════════════════════════════════════════ */
-    let token      = localStorage.getItem('tf_token')   || null;
-    let curUser    = localStorage.getItem('tf_user')    || null;
-    let curDisplay = localStorage.getItem('tf_display') || null;
-    let curMobile  = localStorage.getItem('tf_mobile')  || null;
-    let curImg     = localStorage.getItem('tf_img')     || null;
-
-    let tasks=[], editingId=null, deleteTaskId=null;
-    let selPri='high', curFilter='all', curCat='', curSort='', searchQ='';
-    let darkMode = localStorage.getItem('tf_dark') === 'true';
-
-    // ── Notification globals (declared here so all functions can access them) ──
-    let _notifEnabled  = localStorage.getItem('tf_notif') !== 'off';
-    let _notifInterval = null;
-    let _notifFired    = JSON.parse(localStorage.getItem('tf_notif_fired') || '{}');
-
-    // Cropper state
-    let cropImgSrc=null, cropX=80, cropY=60, cropW=160, cropH=160;
-    let cropImgX=0, cropImgY=0, cropScale=1, _drag=null;
-
-    // Profile pending image
-    let pendingImg = null;
-
-    /* ══════════════════════════════════════════════════
-    BOOT
-    ══════════════════════════════════════════════════ */
-    applyDark();
-    if (token) showApp();
-
-    /* ══════════════════════════════════════════════════
-    AUTH
-    ══════════════════════════════════════════════════ */
-    function switchTab(t) {
-      document.querySelectorAll('.auth-tab').forEach((el,i) => el.classList.toggle('active', t==='login' ? i===0 : i===1));
-      // Hide all login-side panels
-      ['login-form','fp1','fp2','fp3','fu1','fu2','fu3'].forEach(id => document.getElementById(id).classList.remove('active'));
-      // Hide all register-side steps
-      document.getElementById('register-form').classList.remove('active');
-      ['rg-s1','rg-s2'].forEach(id => document.getElementById(id).classList.remove('active'));
-      if (t === 'login') {
-        document.getElementById('login-form').classList.add('active');
-      } else {
-        document.getElementById('register-form').classList.add('active');
-        document.getElementById('rg-s1').classList.add('active');
-      }
-    }
-
-    async function doLogin() {
-    const u=document.getElementById('li-u').value.trim();
-    const p=document.getElementById('li-p').value;
-    const err=document.getElementById('li-err');
-    err.textContent='';
-    if (!u||!p) { err.textContent='Please fill in all fields.'; return; }
-    try {
-        const res = await fetch(`${API}/login`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username:u, password:p})});
-        const d   = await res.json();
-        if (!res.ok) throw new Error(d.error || 'Login failed');
-        // Save everything from server response
-        token      = d.access_token;
-        curUser    = d.username    || u;
-        curDisplay = d.display_name|| u;
-        curMobile  = d.mobile      || '';
-        curImg     = d.profile_image || '';
-        saveLocal();
-        showApp();
-    } catch(e) { err.textContent = e.message; }
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       REGISTER WITH OTP
-       ═══════════════════════════════════════════════════════ */
-    let _rgTimer = null;
-
-    async function rgSendOtp(isResend = false) {
-      const u   = document.getElementById('rg-u').value.trim();
-      const m   = document.getElementById('rg-m').value.trim();
-      const p   = document.getElementById('rg-p').value;
-      const err = document.getElementById('rg-err');
-      err.textContent = '';
-      if (!u || !m || !p)               { err.textContent = 'All fields are required.'; return; }
-      if (u.length < 3)                 { err.textContent = 'Username must be at least 3 characters.'; return; }
-      if (!/^[a-zA-Z0-9_]+$/.test(u))  { err.textContent = 'Username: only letters, numbers, underscores.'; return; }
-      if (!/^[0-9]{10}$/.test(m))       { err.textContent = 'Mobile must be exactly 10 digits.'; return; }
-      if (p.length < 4)                 { err.textContent = 'Password must be at least 4 characters.'; return; }
-      try {
-        const res = await fetch(`${API}/register/send-otp`, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({username: u, mobile: m, password: p})
-        });
-        const d = await res.json();
-        if (!res.ok) throw new Error(d.error || 'Failed to send OTP');
-        // Show masked number or dev mode hint
-        const masked = '+91 ' + m.slice(0,2) + 'XXXXXX' + m.slice(-2);
-        document.getElementById('rg-sent-lbl').textContent = d.dev
-          ? '⚠️ DEV MODE — Check Flask terminal for OTP'
-          : 'OTP sent to ' + masked;
-        // Clear OTP boxes
-        for (let i = 0; i < 6; i++) {
-          const b = document.getElementById('rg-ob' + i);
-          b.value = ''; b.classList.remove('done', 'shake');
-        }
-        document.getElementById('rg-err2').textContent = '';
-        document.getElementById('rg-s1').classList.remove('active');
-        document.getElementById('rg-s2').classList.add('active');
-        rgStartTimer();
-        showToast(d.dev ? '⚠️ Dev mode — check terminal for OTP' : 'OTP sent to ' + masked, d.dev ? 'info' : 'success');
-        setTimeout(() => document.getElementById('rg-ob0').focus(), 80);
-      } catch(e) { err.textContent = e.message; }
-    }
-
-    function rgGoBack() {
-      clearInterval(_rgTimer);
-      document.getElementById('rg-s2').classList.remove('active');
-      document.getElementById('rg-s1').classList.add('active');
-    }
-
-    function rgStartTimer() {
-      clearInterval(_rgTimer);
-      let s = 60;
-      const tEl = document.getElementById('rg-timer');
-      const rEl = document.getElementById('rg-resend');
-      rEl.classList.add('off'); tEl.textContent = 'Resend in 60s';
-      _rgTimer = setInterval(() => {
-        s--;
-        tEl.textContent = s > 0 ? 'Resend in ' + s + 's' : '';
-        if (s <= 0) { clearInterval(_rgTimer); rEl.classList.remove('off'); }
-      }, 1000);
-    }
-
-    function rgOtpIn(i) {
-      const b = document.getElementById('rg-ob' + i);
-      b.value = b.value.replace(/[^0-9]/g, '').slice(-1);
-      b.classList.toggle('done', !!b.value);
-      b.classList.remove('shake');
-      if (b.value && i < 5) document.getElementById('rg-ob' + (i+1)).focus();
-      const allFilled = [0,1,2,3,4,5].every(j => document.getElementById('rg-ob'+j).value);
-      if (allFilled) rgVerifyAndCreate();
-    }
-
-    function rgOtpKey(e, i) {
-      if (e.key === 'Backspace' && !document.getElementById('rg-ob'+i).value && i > 0)
-        document.getElementById('rg-ob' + (i-1)).focus();
-    }
-
-    async function rgVerifyAndCreate() {
-      const otp = [0,1,2,3,4,5].map(i => document.getElementById('rg-ob'+i).value).join('');
-      const err = document.getElementById('rg-err2');
-      err.textContent = '';
-      if (otp.length < 6) { err.textContent = 'Enter the complete 6-digit OTP.'; return; }
-      const m = document.getElementById('rg-m').value.trim();
-      try {
-        const res = await fetch(`${API}/register/verify-otp`, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({mobile: m, otp: otp})
-        });
-        const d = await res.json();
-        if (!res.ok) throw new Error(d.error || 'Verification failed');
-        clearInterval(_rgTimer);
-        showToast('✅ Account created! Please sign in.', 'success');
-        switchTab('login');
-        document.getElementById('li-u').value = document.getElementById('rg-u').value.trim();
-      } catch(e) {
-        err.textContent = e.message;
-        [0,1,2,3,4,5].forEach(i => {
-          const b = document.getElementById('rg-ob'+i);
-          b.classList.add('shake');
-          setTimeout(() => b.classList.remove('shake'), 1200);
-        });
-      }
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       FORGOT PASSWORD WITH OTP
-       ═══════════════════════════════════════════════════════ */
-    let _fpMobile = '', _fpToken = '', _fpTimer = null;
-
-    function fpShow(step) {
-      ['login-form','fp1','fp2','fp3','fu1','fu2','fu3'].forEach(id => document.getElementById(id).classList.remove('active'));
-      if (step === 0) document.getElementById('login-form').classList.add('active');
-      else            document.getElementById('fp' + step).classList.add('active');
-      document.getElementById('li-err').textContent = '';
-      if (step === 1) setTimeout(() => document.getElementById('fp-mob').focus(), 80);
-      if (step === 2) setTimeout(() => document.getElementById('fp-ob0').focus(), 80);
-      if (step === 3) setTimeout(() => document.getElementById('fp-np').focus(), 80);
-    }
-
-    async function fpSendOtp(isResend = false) {
-      const mob   = isResend ? _fpMobile : document.getElementById('fp-mob').value.trim();
-      const errEl = document.getElementById('fp-err1');
-      errEl.textContent = '';
-      if (!/^[0-9]{10}$/.test(mob)) { errEl.textContent = 'Enter a valid 10-digit mobile number.'; return; }
-      _fpMobile = mob;
-      try {
-        const res = await fetch(`${API}/forgot-password/send-otp`, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({mobile: mob})
-        });
-        const d = await res.json();
-        if (!res.ok) throw new Error(d.error || 'Failed to send OTP');
-        const masked = '+91 ' + mob.slice(0,2) + 'XXXXXX' + mob.slice(-2);
-        document.getElementById('fp-sent-lbl').textContent = d.dev
-          ? '⚠️ DEV MODE — Check Flask terminal for OTP'
-          : 'OTP sent to ' + masked;
-        for (let i = 0; i < 6; i++) {
-          const b = document.getElementById('fp-ob' + i);
-          b.value = ''; b.classList.remove('done', 'shake');
-        }
-        document.getElementById('fp-err2').textContent = '';
-        fpShow(2); fpStartTimer();
-        showToast(d.dev ? '⚠️ Dev mode — check terminal for OTP' : 'OTP sent to ' + masked, d.dev ? 'info' : 'success');
-      } catch(e) { document.getElementById('fp-err1').textContent = e.message; }
-    }
-
-    function fpStartTimer() {
-      clearInterval(_fpTimer);
-      let s = 60;
-      const tEl = document.getElementById('fp-timer');
-      const rEl = document.getElementById('fp-resend');
-      rEl.classList.add('off'); tEl.textContent = 'Resend in 60s';
-      _fpTimer = setInterval(() => {
-        s--;
-        tEl.textContent = s > 0 ? 'Resend in ' + s + 's' : '';
-        if (s <= 0) { clearInterval(_fpTimer); rEl.classList.remove('off'); }
-      }, 1000);
-    }
-
-    function fpOtpIn(i) {
-      const b = document.getElementById('fp-ob' + i);
-      b.value = b.value.replace(/[^0-9]/g, '').slice(-1);
-      b.classList.toggle('done', !!b.value);
-      b.classList.remove('shake');
-      if (b.value && i < 5) document.getElementById('fp-ob' + (i+1)).focus();
-      const allFilled = [0,1,2,3,4,5].every(j => document.getElementById('fp-ob'+j).value);
-      if (allFilled) fpVerifyOtp();
-    }
-
-    function fpOtpKey(e, i) {
-      if (e.key === 'Backspace' && !document.getElementById('fp-ob'+i).value && i > 0)
-        document.getElementById('fp-ob' + (i-1)).focus();
-    }
-
-    async function fpVerifyOtp() {
-      const otp   = [0,1,2,3,4,5].map(i => document.getElementById('fp-ob'+i).value).join('');
-      const errEl = document.getElementById('fp-err2');
-      errEl.textContent = '';
-      if (otp.length < 6) { errEl.textContent = 'Enter the complete 6-digit OTP.'; return; }
-      try {
-        const res = await fetch(`${API}/forgot-password/verify-otp`, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({mobile: _fpMobile, otp: otp})
-        });
-        const d = await res.json();
-        if (!res.ok) throw new Error(d.error || 'Invalid OTP');
-        _fpToken = d.reset_token;
-        clearInterval(_fpTimer);
-        document.getElementById('fp-err3').textContent = '';
-        document.getElementById('fp-ok3').textContent  = '';
-        fpShow(3);
-      } catch(e) {
-        errEl.textContent = e.message;
-        [0,1,2,3,4,5].forEach(i => {
-          const b = document.getElementById('fp-ob'+i);
-          b.classList.add('shake');
-          setTimeout(() => b.classList.remove('shake'), 1200);
-        });
-      }
-    }
-
-    async function fpResetPass() {
-      const np  = document.getElementById('fp-np').value;
-      const cp  = document.getElementById('fp-cp').value;
-      const err = document.getElementById('fp-err3');
-      const ok  = document.getElementById('fp-ok3');
-      err.textContent = ''; ok.textContent = '';
-      if (!np)          { err.textContent = 'Enter a new password.'; return; }
-      if (np.length < 4){ err.textContent = 'Password must be at least 4 characters.'; return; }
-      if (np !== cp)    { err.textContent = 'Passwords do not match.'; return; }
-      try {
-        const res = await fetch(`${API}/forgot-password/reset`, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({reset_token: _fpToken, new_password: np})
-        });
-        const d = await res.json();
-        if (!res.ok) throw new Error(d.error || 'Reset failed');
-        ok.textContent = '✅ Password reset! You can now sign in.';
-        _fpToken = ''; _fpMobile = '';
-        setTimeout(() => fpShow(0), 2000);
-      } catch(e) { err.textContent = e.message; }
-    }
-
-    /* ═══════════════════════════════════════════════════════
-       FORGOT USERNAME WITH OTP
-       ═══════════════════════════════════════════════════════ */
-    let _fuMobile = '', _fuTimer = null;
-
-    function fuShow(step) {
-      ['login-form','fp1','fp2','fp3','fu1','fu2','fu3'].forEach(id => document.getElementById(id).classList.remove('active'));
-      if (step === 0) document.getElementById('login-form').classList.add('active');
-      else            document.getElementById('fu' + step).classList.add('active');
-      if (step === 1) setTimeout(() => document.getElementById('fu-mob').focus(), 80);
-      if (step === 2) setTimeout(() => document.getElementById('fu-ob0').focus(), 80);
-    }
-
-    async function fuSendOtp(isResend = false) {
-      const mob   = isResend ? _fuMobile : document.getElementById('fu-mob').value.trim();
-      const errEl = document.getElementById('fu-err1');
-      errEl.textContent = '';
-      if (!/^[0-9]{10}$/.test(mob)) { errEl.textContent = 'Enter a valid 10-digit mobile number.'; return; }
-      _fuMobile = mob;
-      try {
-        const res = await fetch(`${API}/forgot-username/send-otp`, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({mobile: mob})
-        });
-        const d = await res.json();
-        if (!res.ok) throw new Error(d.error || 'Failed to send OTP');
-        const masked = '+91 ' + mob.slice(0,2) + 'XXXXXX' + mob.slice(-2);
-        document.getElementById('fu-sent-lbl').textContent = d.dev
-          ? '⚠️ DEV MODE — Check Flask terminal for OTP'
-          : 'OTP sent to ' + masked;
-        for (let i = 0; i < 6; i++) {
-          const b = document.getElementById('fu-ob' + i);
-          b.value = ''; b.classList.remove('done', 'shake');
-        }
-        document.getElementById('fu-err2').textContent = '';
-        fuShow(2); fuStartTimer();
-        showToast(d.dev ? '⚠️ Dev mode — check terminal for OTP' : 'OTP sent to ' + masked, d.dev ? 'info' : 'success');
-      } catch(e) { document.getElementById('fu-err1').textContent = e.message; }
-    }
-
-    function fuStartTimer() {
-      clearInterval(_fuTimer);
-      let s = 60;
-      const tEl = document.getElementById('fu-timer');
-      const rEl = document.getElementById('fu-resend');
-      rEl.classList.add('off'); tEl.textContent = 'Resend in 60s';
-      _fuTimer = setInterval(() => {
-        s--;
-        tEl.textContent = s > 0 ? 'Resend in ' + s + 's' : '';
-        if (s <= 0) { clearInterval(_fuTimer); rEl.classList.remove('off'); }
-      }, 1000);
-    }
-
-    function fuOtpIn(i) {
-      const b = document.getElementById('fu-ob' + i);
-      b.value = b.value.replace(/[^0-9]/g, '').slice(-1);
-      b.classList.toggle('done', !!b.value);
-      b.classList.remove('shake');
-      if (b.value && i < 5) document.getElementById('fu-ob' + (i+1)).focus();
-      const allFilled = [0,1,2,3,4,5].every(j => document.getElementById('fu-ob'+j).value);
-      if (allFilled) fuVerifyOtp();
-    }
-
-    function fuOtpKey(e, i) {
-      if (e.key === 'Backspace' && !document.getElementById('fu-ob'+i).value && i > 0)
-        document.getElementById('fu-ob' + (i-1)).focus();
-    }
-
-    async function fuVerifyOtp() {
-      const otp   = [0,1,2,3,4,5].map(i => document.getElementById('fu-ob'+i).value).join('');
-      const errEl = document.getElementById('fu-err2');
-      errEl.textContent = '';
-      if (otp.length < 6) { errEl.textContent = 'Enter the complete 6-digit OTP.'; return; }
-      try {
-        const res = await fetch(`${API}/forgot-username/verify-otp`, {
-          method: 'POST', headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({mobile: _fuMobile, otp: otp})
-        });
-        const d = await res.json();
-        if (!res.ok) throw new Error(d.error || 'Invalid OTP');
-        clearInterval(_fuTimer);
-        document.getElementById('fu-result').textContent = d.username;
-        document.getElementById('fu-ok3').textContent = '✅ Verified! Use this username to sign in.';
-        fuShow(3);
-      } catch(e) {
-        errEl.textContent = e.message;
-        [0,1,2,3,4,5].forEach(i => {
-          const b = document.getElementById('fu-ob'+i);
-          b.classList.add('shake');
-          setTimeout(() => b.classList.remove('shake'), 1200);
-        });
-      }
-    }
-
-    function fuGoLogin() {
-      const username = document.getElementById('fu-result').textContent;
-      fuShow(0);
-      document.getElementById('li-u').value = username;
-      document.getElementById('li-p').focus();
-      _fuMobile = '';
-    }
-
-    function saveLocal() {
-    localStorage.setItem('tf_token',   token);
-    localStorage.setItem('tf_user',    curUser);
-    localStorage.setItem('tf_display', curDisplay);
-    localStorage.setItem('tf_mobile',  curMobile);
-    localStorage.setItem('tf_img',     curImg);
-    }
-
-    function showApp() {
-    startNotifIfEnabled();
-    document.getElementById('auth-screen').style.display = 'none';
-    document.getElementById('app').classList.add('visible');
-    updateUserUI();
-    loadTasks();
-    loadStats();
-    setGreeting();
-    loadProfileFromServer(); // ← ALWAYS fetch fresh profile from DB on login/load
-    }
-
-    /* ══════════════════════════════════════════════════
-    LOAD PROFILE FROM SERVER (THE KEY FIX)
-    This runs on every login and app load.
-    It pulls the profile image and data from the
-    DATABASE — so it works on ALL browsers/devices.
-    ══════════════════════════════════════════════════ */
-    async function loadProfileFromServer() {
-    try {
-        const res  = await api('/profile');
-        if (!res.ok) return;
-        const data = await res.json();
-
-        // Always trust the DATABASE over localStorage
-        curDisplay = data.display_name   || curUser;
-        curMobile  = data.mobile         || '';
-        curImg     = data.profile_image  || '';
-
-        // Update localStorage cache
-        saveLocal();
-
-        // Refresh all UI with latest data
-        updateUserUI();
-        setGreeting();
-    } catch(e) { /* silent — don't break the app if this fails */ }
-    }
-
-    function updateUserUI() {
-    const name = curDisplay || curUser || '?';
-    const init = name.slice(0,2).toUpperCase();
-
-    // Sidebar avatar
-    const sbAv = document.getElementById('sb-av');
-    sbAv.innerHTML = curImg
-        ? `<img src="${curImg}" alt="av"/>`
-        : init;
-    document.getElementById('sb-name').textContent = name;
-
-    // Settings avatar
-    const setAv = document.getElementById('set-av');
-    setAv.innerHTML = curImg
-        ? `<img src="${curImg}" alt="av"/><div class="s-av-ov">✏️</div>`
-        : `${init}<div class="s-av-ov">✏️</div>`;
-
-    document.getElementById('set-uname').textContent  = name;
-    document.getElementById('set-mobile').textContent = curMobile || 'Not set';
-    }
-
-    /* ══════════════════════════════════════════════════
-    API HELPER
-    ══════════════════════════════════════════════════ */
-    function hdr() { return {'Content-Type':'application/json','Authorization':`Bearer ${token}`}; }
-    async function api(path, opts={}) {
-    const res = await fetch(API + path, {...opts, headers: hdr()});
-    if (res.status === 401) { doLogout(); throw new Error('Session expired'); }
-    return res;
-    }
-
-    /* ══════════════════════════════════════════════════
-    TASKS
-    ══════════════════════════════════════════════════ */
-    async function loadTasks() {
-    let url = '/tasks?';
-    if (curFilter && curFilter!=='all') url += `status=${curFilter}&`;
-    if (curCat)    url += `category=${curCat}&`;
-    if (curSort)   url += `sort=${curSort}&`;
-    if (searchQ)   url += `search=${encodeURIComponent(searchQ)}&`;
-    try {
-        const res = await api(url);
-        tasks = await res.json();
-        if (_notifEnabled) checkTaskNotifications();
-        renderTasks();
-    } catch(e) {
-        document.getElementById('task-list').innerHTML =
-        `<div style="text-align:center;padding:60px;color:var(--red)">⚠️ Cannot reach server. Is Flask running on port 5000?</div>`;
-    }
-    }
-
-    function renderTasks() {
-    const el = document.getElementById('task-list');
-    if (!tasks.length) {
-        el.innerHTML=`<div class="task-empty"><div class="ei">📭</div><h3>No tasks here</h3><p>Add a task using the button above.</p></div>`;
-        return;
-    }
-    el.innerHTML = tasks.map(t => {
-        const done=t.is_done===1;
-        const dCls=dueCls(t.due_date,done), dLbl=fmtDue(t.due_date);
-        const cCls=(t.category||'personal').toLowerCase(), pCls=(t.priority||'medium').toLowerCase();
-        return `<div class="task-card ${done?'done-card':''}">
-        <div class="t-check ${done?'checked':''}" onclick="toggleDone(${t.id})">${done?'✓':''}</div>
-        <div class="t-pri ${pCls}"></div>
-        <div class="t-body">
-            <div class="t-title">${esc(t.title)}</div>
-            ${t.description?`<div class="t-desc">${esc(t.description)}</div>`:''}
-            <div class="t-meta">
-            <span class="t-tag ${cCls}">${cap(t.category)}</span>
-            ${dLbl?`<span class="t-due ${dCls}">📅 ${dLbl}</span>`:''}
-            </div>
-        </div>
-        <div class="t-actions">
-            <button class="t-btn" onclick="openModal(${t.id})">✏️</button>
-            <button class="t-btn del" onclick="askDelTask(${t.id})">🗑️</button>
-        </div>
-        </div>`;
-    }).join('');
-    }
-
-    function setFilter(f) {
-    curFilter=f; curCat='';
-    document.querySelectorAll('.f-chip').forEach(c => c.className='f-chip'+(c.dataset.f===f?' on '+f:''));
-    document.querySelectorAll('.cat-tab').forEach(c => c.classList.toggle('on', c.dataset.c===''));
-    const titles={all:'All Tasks',today:'Due Today',pending:'Pending',done:'Completed',overdue:'Overdue'};
-    document.getElementById('tasks-title').textContent = titles[f]||'All Tasks';
-    loadTasks();
-    }
-    function setCat(cat) {
-    curCat=cat; curFilter='all';
-    document.querySelectorAll('.f-chip').forEach(c => c.classList.toggle('on', c.dataset.f==='all'));
-    document.querySelectorAll('.cat-tab').forEach(c => c.classList.toggle('on', c.dataset.c===cat));
-    document.getElementById('tasks-title').textContent = cat ? cap(cat)+' Tasks' : 'All Tasks';
-    loadTasks();
-    }
-    function onSort(v) { curSort=v; loadTasks(); }
-    let sTimer;
-    function onSearch(v) { searchQ=v; clearTimeout(sTimer); sTimer=setTimeout(loadTasks,300); }
-
-    function openModal(id=null) {
-    editingId=id;
-    document.getElementById('t-title-err').textContent='';
-      document.getElementById('t-date-err').textContent='';
-    if (id) {
-        const t=tasks.find(x=>x.id===id); if(!t) return;
-        document.getElementById('modal-ttl').textContent='Edit Task';
-        document.getElementById('t-title').value=t.title||'';
-        document.getElementById('t-desc').value=t.description||'';
-        document.getElementById('t-cat').value=(t.category||'personal').toLowerCase();
-        document.getElementById('t-date').value=t.due_date||'';
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // fix timezone
-        document.getElementById('t-date').min = now.toISOString().slice(0, 16);
-        setPri((t.priority||'medium').toLowerCase());
-    } else {
-        document.getElementById('modal-ttl').textContent='Add New Task';
-        document.getElementById('t-title').value='';
-        document.getElementById('t-desc').value='';
-        document.getElementById('t-cat').value='work';
-        document.getElementById('t-date').value='';
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); // fix timezone
-        document.getElementById('t-date').min = now.toISOString().slice(0, 16);
-        setPri('high');     
-    }
-    document.getElementById('task-overlay').classList.add('open');
-    setTimeout(()=>document.getElementById('t-title').focus(),80);
-    }
-    function closeModal() { document.getElementById('task-overlay').classList.remove('open'); }
-
-    function setPri(p) {
-    selPri=p;
-    document.querySelectorAll('.pri-btn').forEach(b => b.classList.toggle('sel', b.dataset.p===p));
-    }
-
-    async function saveTask() {
-      const title   = document.getElementById('t-title').value.trim();
-      const dateVal = document.getElementById('t-date').value;
-      document.getElementById('t-title-err').textContent = '';
-      document.getElementById('t-date-err').textContent  = '';
-      if (!title) {
-        document.getElementById('t-title-err').textContent = 'Title is required.';
-        document.getElementById('t-title').focus(); return;
-      }
-      if (!dateVal) {
-        document.getElementById('t-date-err').textContent = 'Due date & time is required.';
-        document.getElementById('t-date').focus(); return;
-      }
-      if (new Date(dateVal) < new Date()) {
-        document.getElementById('t-date-err').textContent = 'Due date & time cannot be in the past.';
-        document.getElementById('t-date').focus(); return;
-      }
-      const payload = {title, description:document.getElementById('t-desc').value.trim(),
-        category:document.getElementById('t-cat').value, due_date:dateVal, priority:selPri};
-    try {
-        const res = editingId
-        ? await api(`/tasks/${editingId}`, {method:'PUT',  body:JSON.stringify(payload)})
-        : await api('/tasks',              {method:'POST', body:JSON.stringify(payload)});
-        if (!res.ok) { const d=await res.json(); throw new Error(d.error||'Failed'); }
-        closeModal();
-        showToast(editingId?'✅ Task updated!':'✅ Task added!', 'success');
-        await loadTasks(); await loadStats(); refreshViews();
-    } catch(e) { showToast(e.message, 'error'); }
-    }
-
-    async function toggleDone(id) {
-    try { await api(`/tasks/${id}/done`,{method:'PATCH'}); await loadTasks(); await loadStats(); refreshViews(); }
-    catch(e) { showToast('Update failed','error'); }
-    }
-
-    function askDelTask(id) { deleteTaskId=id; document.getElementById('del-task-overlay').classList.add('open'); }
-    function closeDelTask() { deleteTaskId=null; document.getElementById('del-task-overlay').classList.remove('open'); }
-    async function doDeleteTask() {
-    if (!deleteTaskId) return;
-    try {
-        const res = await api(`/tasks/${deleteTaskId}`,{method:'DELETE'});
-        if (!res.ok) throw new Error('Delete failed');
-        closeDelTask(); showToast('🗑️ Task deleted.','success');
-        await loadTasks(); await loadStats(); refreshViews();
-    } catch(e) { showToast(e.message,'error'); }
-    }
-
-    /* ══════════════════════════════════════════════════
-    STATS
-    ══════════════════════════════════════════════════ */
-    async function loadStats() {
-    try {
-        const res=await api('/stats'); const d=await res.json();
-        document.getElementById('b-all').textContent=d.total;
-        document.getElementById('b-today').textContent=d.today;
-        document.getElementById('b-pend').textContent=d.pending;
-        document.getElementById('b-done').textContent=d.completed;
-        document.getElementById('f-pend').textContent=d.pending;
-        document.getElementById('f-done').textContent=d.completed;
-        document.getElementById('f-over').textContent=d.overdue;
-        document.getElementById('sc-total').textContent=d.total;
-        document.getElementById('sc-today').textContent=d.today;
-        document.getElementById('sc-comp').textContent=d.completed;
-        document.getElementById('sc-over').textContent=d.overdue;
-        document.getElementById('rl-comp').textContent=d.completed;
-        document.getElementById('rl-pend').textContent=d.pending;
-        document.getElementById('rl-over').textContent=d.overdue;
-        const pct=d.progress||0, circ=2*Math.PI*58;
-        document.getElementById('ring-arc').setAttribute('stroke-dashoffset', circ-(pct/100)*circ);
-        document.getElementById('ring-pct-txt').textContent=Math.round(pct)+'%';
-    } catch(e) {}
-    }
-
-    /* ══════════════════════════════════════════════════
-    OVERVIEW
-    ══════════════════════════════════════════════════ */
-    function setGreeting() {
-    const h=new Date().getHours();
-    const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-    document.getElementById('ov-greet').textContent=`${g}, ${curDisplay||curUser} 👋`;
-    document.getElementById('ov-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    }
-    async function loadTodayTasks() {
-    try {
-        const res=await api('/tasks?status=today'); const data=await res.json();
-        const el=document.getElementById('ov-today-list');
-        if (!data.length) { el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--ink3);font-size:13px">🎉 No tasks due today!</div>`; return; }
-        el.innerHTML=data.map(t=>{const done=t.is_done===1;return`<div class="mini-t"><div class="t-check ${done?'checked':''}" style="width:16px;height:16px;font-size:9px" onclick="toggleDone(${t.id})">${done?'✓':''}</div><span class="mini-t-name ${done?'done':''}">${esc(t.title)}</span><span class="mini-t-st ${done?'done':'tod'}">${done?'Done':'Today'}</span></div>`;}).join('');
-    } catch(e) {}
-    }
-
-    /* ══════════════════════════════════════════════════
-    CATEGORIES
-    ══════════════════════════════════════════════════ */
-    async function loadCategories() {
-    try {
-        const [w,p,s] = await Promise.all([
-        api('/tasks?category=work').then(r=>r.json()),
-        api('/tasks?category=personal').then(r=>r.json()),
-        api('/tasks?category=study').then(r=>r.json()),
-        ]);
-        const cats=[{name:'Work',icon:'💼',color:'var(--brand)',tasks:w},{name:'Personal',icon:'🏠',color:'var(--purple)',tasks:p},{name:'Study',icon:'📚',color:'var(--green)',tasks:s}];
-        document.getElementById('cat-list').innerHTML=cats.map(cat=>{
-        const tot=cat.tasks.length,don=cat.tasks.filter(t=>t.is_done===1).length,pct=tot?Math.round(don/tot*100):0,k=cat.name.toLowerCase();
-        return`<div class="cat-card-wrap" id="cc-${k}"><div class="cat-card-head" onclick="toggleCatCard('${k}')"><span class="cat-ci">${cat.icon}</span><div class="cat-cd"><div class="cat-cd-name">${cat.name}</div><div class="cat-cd-sub">${tot} tasks · ${don} completed</div></div><div class="cat-right"><div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%;background:${cat.color}"></div></div><span class="cat-pct">${pct}%</span><span class="cat-chev">›</span></div></div><div class="cat-body">${tot?cat.tasks.map(t=>`<div class="cat-t-item"><div class="cat-mini-cb ${t.is_done?'ck':''}" onclick="toggleDone(${t.id}).then(()=>loadCategories())">${t.is_done?'✓':''}</div><span class="cat-t-name ${t.is_done?'done':''}">${esc(t.title)}</span>${isOver(t.due_date,t.is_done)?'<span class="ov-badge">Overdue</span>':''}</div>`).join(''):'<div style="padding:12px 0;font-size:13px;color:var(--ink3)">No tasks in this category.</div>'}</div></div>`;
-        }).join('');
-    } catch(e) {}
-    }
-    function toggleCatCard(k) { document.getElementById('cc-'+k).classList.toggle('open'); }
-
-    /* ══════════════════════════════════════════════════
-    EDIT PROFILE
-    ══════════════════════════════════════════════════ */
-    function openEditProfile() {
-    pendingImg = null;
-    document.getElementById('prof-err').textContent='';
-    document.getElementById('prof-username').value = curUser||'';
-    document.getElementById('prof-name').value   = curDisplay||curUser||'';
-    document.getElementById('prof-mobile').value = curMobile||'';
-    document.getElementById('prof-curr').value   = '';
-    document.getElementById('prof-new').value    = '';
-    document.getElementById('prof-conf').value   = '';
-    refreshProfPreview();
-    document.getElementById('profile-overlay').classList.add('open');
-    }
-    function closeEditProfile() { document.getElementById('profile-overlay').classList.remove('open'); }
-
-    function refreshProfPreview() {
-    const prev = document.getElementById('prof-prev');
-    const name = document.getElementById('prof-name').value.trim() || curDisplay || curUser || '?';
-    const src  = pendingImg && pendingImg !== '__remove__' ? pendingImg : (pendingImg==='__remove__' ? null : curImg);
-    prev.innerHTML = src ? `<img src="${src}" alt="preview"/>` : name.slice(0,2).toUpperCase();
-    }
-
-    function removeProfileImg() {
-    pendingImg = '__remove__';
-    const name = (curDisplay||curUser||'?').slice(0,2).toUpperCase();
-    document.getElementById('prof-prev').innerHTML = name;
-    showToast('Photo will be removed on save.');
-    }
-
-    async function saveProfile() {
-    const err = document.getElementById('prof-err');
-    err.textContent='';
-    const new_username = document.getElementById('prof-username').value.trim();
-    const display_name = document.getElementById('prof-name').value.trim();
-    const mobile       = document.getElementById('prof-mobile').value.trim();
-    const curr_pass    = document.getElementById('prof-curr').value;
-    const new_pass     = document.getElementById('prof-new').value;
-    const conf_pass    = document.getElementById('prof-conf').value;
-
-    if (new_username && new_username.length < 3)               { err.textContent='Username must be at least 3 characters.'; return; }
-    if (new_username && !/^[a-zA-Z0-9_]+$/.test(new_username)) { err.textContent='Username: only letters, numbers and underscores.'; return; }
-    if (mobile && !/^\d{10}$/.test(mobile)) { err.textContent='Mobile must be exactly 10 digits.'; return; }
-    if (new_pass && new_pass !== conf_pass)  { err.textContent='New passwords do not match.'; return; }
-    if (new_pass && !curr_pass)              { err.textContent='Current password is required to set a new password.'; return; }
-    if (new_pass && new_pass.length<4)       { err.textContent='New password must be at least 4 characters.'; return; }
-
-    const payload = {};
-    if (new_username && new_username !== curUser) payload.username = new_username;
-    if (display_name) payload.display_name = display_name;
-    if (mobile)       payload.mobile       = mobile;
-    if (new_pass)     { payload.new_password=new_pass; payload.current_password=curr_pass; }
-    if (pendingImg === '__remove__') payload.profile_image = '';
-    else if (pendingImg)             payload.profile_image = pendingImg;
-
-    try {
-        const res  = await api('/profile', {method:'PUT', body:JSON.stringify(payload)});
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error||'Update failed');
-
-        // Update state from server response — single source of truth
-        if (data.username) { curUser = data.username; localStorage.setItem('tf_user', curUser); }
-        curDisplay = data.display_name  || display_name || curDisplay;
-        curMobile  = data.mobile        || mobile       || curMobile;
-        curImg     = data.profile_image !== undefined ? data.profile_image : curImg;
-        saveLocal();
-
-        closeEditProfile();
-        updateUserUI();
-        setGreeting();
-        showToast('✅ Profile updated successfully!', 'success');
-    } catch(e) { err.textContent = e.message; }
-    }
-
-    /* ══════════════════════════════════════════════════
-    IMAGE CROPPER
-    ══════════════════════════════════════════════════ */
-    function onImgSelect(e) {
-    const file = e.target.files[0]; if (!file) return;
-    if (file.size > 10*1024*1024) { showToast('Image must be under 10MB','error'); return; }
-    const reader = new FileReader();
-    reader.onload = ev => { cropImgSrc=ev.target.result; openCropper(); };
-    reader.readAsDataURL(file);
-    e.target.value='';
-    }
-
-    function openCropper() {
-    const img   = document.getElementById('crop-img');
-    const stage = document.getElementById('crop-stage');
-    img.src = cropImgSrc;
-    img.onload = () => {
-        const sw=stage.offsetWidth, sh=stage.offsetHeight;
-        const iw=img.naturalWidth,  ih=img.naturalHeight;
-        cropScale  = Math.min(sw/iw, sh/ih, 1);
-        cropImgX   = (sw - iw*cropScale)/2;
-        cropImgY   = (sh - ih*cropScale)/2;
-        const size = Math.min(sw,sh)*0.65;
-        cropX=(sw-size)/2; cropY=(sh-size)/2; cropW=size; cropH=size;
-        document.getElementById('zoom-sl').value=100;
-        document.getElementById('zoom-pct').textContent='100%';
-        renderCrop();
-    };
-    document.getElementById('cropper-overlay').classList.add('open');
-    }
-    function closeCropper() { document.getElementById('cropper-overlay').classList.remove('open'); }
-
-    function renderCrop() {
-    const img=document.getElementById('crop-img');
-    const box=document.getElementById('crop-box');
-    img.style.transform=`translate(${cropImgX}px,${cropImgY}px) scale(${cropScale})`;
-    box.style.cssText=`left:${cropX}px;top:${cropY}px;width:${cropW}px;height:${cropH}px;position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.5);cursor:move;box-sizing:border-box;`;
-    }
-
-    function setZoom(val) {
-    const pct   = parseInt(val)/100;
-    const stage = document.getElementById('crop-stage');
-    const img   = document.getElementById('crop-img');
-    const sw=stage.offsetWidth, sh=stage.offsetHeight;
-    const base  = Math.min(sw/img.naturalWidth, sh/img.naturalHeight, 1);
-    cropScale   = base*pct;
-    cropImgX    = (sw - img.naturalWidth*cropScale)/2;
-    cropImgY    = (sh - img.naturalHeight*cropScale)/2;
-    document.getElementById('zoom-pct').textContent=val+'%';
-    renderCrop();
-    }
-
-    function cropDown(e) {
-    if (e.target.classList.contains('crop-corner')) return;
-    const sr=document.getElementById('crop-stage').getBoundingClientRect();
-    const mx=e.clientX-sr.left, my=e.clientY-sr.top;
-    if (mx>=cropX&&mx<=cropX+cropW&&my>=cropY&&my<=cropY+cropH)
-        _drag={type:'box',startMx:mx,startMy:my,startX:cropX,startY:cropY};
-    }
-    function cropCorner(e,corner) {
-    e.stopPropagation();
-    const sr=document.getElementById('crop-stage').getBoundingClientRect();
-    _drag={type:'corner',corner,startMx:e.clientX-sr.left,startMy:e.clientY-sr.top,startX:cropX,startY:cropY,startW:cropW,startH:cropH};
-    }
-    function cropMove(e) {
-    if (!_drag) return;
-    const sr=document.getElementById('crop-stage').getBoundingClientRect();
-    const mx=e.clientX-sr.left, my=e.clientY-sr.top;
-    const dx=mx-_drag.startMx, dy=my-_drag.startMy;
-    const sw=sr.width, sh=sr.height;
-    if (_drag.type==='box') {
-        cropX=Math.max(0,Math.min(sw-cropW,_drag.startX+dx));
-        cropY=Math.max(0,Math.min(sh-cropH,_drag.startY+dy));
-    } else {
-        const c=_drag.corner, minS=40;
-        let x=_drag.startX,y=_drag.startY,w=_drag.startW,h=_drag.startH;
-        const d=Math.abs(dx)>Math.abs(dy)?dx:dy;
-        if(c==='br'){w=Math.max(minS,w+d);h=w;}
-        if(c==='bl'){w=Math.max(minS,w-d);h=w;x=_drag.startX+_drag.startW-w;}
-        if(c==='tr'){w=Math.max(minS,w+d);h=w;y=_drag.startY+_drag.startH-h;}
-        if(c==='tl'){w=Math.max(minS,w-d);h=w;x=_drag.startX+_drag.startW-w;y=_drag.startY+_drag.startH-h;}
-        cropX=Math.max(0,x); cropY=Math.max(0,y);
-        cropW=Math.min(w,sw-cropX); cropH=Math.min(h,sh-cropY);
-    }
-    renderCrop();
-    }
-    function cropUp()    { _drag=null; }
-    function cropWheel(e) {
-    e.preventDefault();
-    const sl=document.getElementById('zoom-sl');
-    const v=Math.max(50,Math.min(300,parseInt(sl.value)+(e.deltaY<0?5:-5)));
-    sl.value=v; setZoom(v);
-    }
-
-    function applyCrop() {
-    const canvas=document.createElement('canvas');
-    const OUT=300; canvas.width=OUT; canvas.height=OUT;
-    const ctx=canvas.getContext('2d');
-    const img=document.getElementById('crop-img');
-    const srcX=(cropX-cropImgX)/cropScale;
-    const srcY=(cropY-cropImgY)/cropScale;
-    const srcW=cropW/cropScale;
-    const srcH=cropH/cropScale;
-    ctx.beginPath(); ctx.arc(OUT/2,OUT/2,OUT/2,0,Math.PI*2); ctx.clip();
-    ctx.drawImage(img, srcX,srcY,srcW,srcH, 0,0,OUT,OUT);
-    pendingImg = canvas.toDataURL('image/jpeg',0.85);
-    closeCropper();
-    refreshProfPreview();
-    showToast('Photo cropped! Click "Save Changes" to apply.','success');
-    }
-
-    /* ══════════════════════════════════════════════════
-    LOGOUT / DELETE ACCOUNT
-    ══════════════════════════════════════════════════ */
-    function openLogout()  { document.getElementById('logout-overlay').classList.add('open'); }
-    function closeLogout() { document.getElementById('logout-overlay').classList.remove('open'); }
-    function doLogout() {
-    token=null; curUser=null; curDisplay=null; curMobile=null; curImg=null;
-    localStorage.clear();
-    document.getElementById('app').classList.remove('visible');
-    document.getElementById('auth-screen').style.display='flex';
-    document.getElementById('logout-overlay').classList.remove('open');
-    showToast('Logged out successfully.');
-    }
-
-    function openDelAcc()  { document.getElementById('del-pass').value=''; document.getElementById('del-err').textContent=''; document.getElementById('del-acc-overlay').classList.add('open'); setTimeout(()=>document.getElementById('del-pass').focus(),80); }
-    function closeDelAcc() { document.getElementById('del-acc-overlay').classList.remove('open'); }
-    async function doDeleteAccount() {
-    const pass=document.getElementById('del-pass').value;
-    const err=document.getElementById('del-err');
-    err.textContent='';
-    if (!pass) { err.textContent='Please enter your password to confirm.'; return; }
-    try {
-        const res=await api('/account',{method:'DELETE',body:JSON.stringify({password:pass})});
-        const d=await res.json();
-        if (!res.ok) throw new Error(d.error||'Failed');
-        localStorage.clear();
-        document.getElementById('del-acc-overlay').classList.remove('open');
-        document.getElementById('app').classList.remove('visible');
-        document.getElementById('auth-screen').style.display='flex';
-        showToast('Account permanently deleted.','info');
-    } catch(e) { err.textContent=e.message; }
-    }
-
-    /* ══════════════════════════════════════════════════
-    NAVIGATION
-    ══════════════════════════════════════════════════ */
-    function goView(name, navEl) {
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-    document.getElementById('view-'+name).classList.add('active');
-    if (navEl) navEl.classList.add('active');
-    if (name==='overview')   { loadStats(); loadTodayTasks(); setGreeting(); }
-    if (name==='categories') { loadCategories(); }
-    }
-    function refreshViews() {
-    if (document.getElementById('view-overview').classList.contains('active'))   { loadStats(); loadTodayTasks(); }
-    if (document.getElementById('view-categories').classList.contains('active')) { loadCategories(); }
-    }
-
-    /* ══════════════════════════════════════════════════
-    DARK MODE
-    ══════════════════════════════════════════════════ */
-    function toggleDark() { darkMode=!darkMode; localStorage.setItem('tf_dark',darkMode); applyDark(); }
-    function applyDark()  { document.documentElement.setAttribute('data-theme',darkMode?'dark':'light'); const t=document.getElementById('dark-tog'); if(t)t.classList.toggle('on',darkMode); }
-
-    /* ══════════════════════════════════════════════════
-    HELPERS
-    ══════════════════════════════════════════════════ */
-    function dueCls(d, done) {
-    if (!d || done) return 'normal';
-    const now  = new Date();
-    const date = new Date(d);
-    const todayStr = now.toISOString().split('T')[0];
-    const dStr     = d.split('T')[0];
-    if (date < now)       return 'overdue';
-    if (dStr === todayStr) return 'today';
-    return 'normal';
-    }
-
-    function isOver(d, done) {
-    if (!d || done) return false;
-    return new Date(d) < new Date();
-    }
-
-    function fmtDue(d) {
-    if (!d) return '';
-    const now   = new Date();
-    const date  = new Date(d);
-    const today = now.toISOString().split('T')[0];
-    const dDay  = d.split('T')[0];
-
-    const timeStr = date.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
-    if (dDay === today) return `Today ${timeStr}`;
-    return date.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' ' + timeStr;
-    }
-
-    function esc(s)         { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    function cap(s)         { return s?s[0].toUpperCase()+s.slice(1):''; }
-    let toastT;
-    function showToast(msg,type='info') { const el=document.getElementById('toast'); el.textContent=msg; el.className=`show ${type}`; clearTimeout(toastT); toastT=setTimeout(()=>el.className='',3000); }
-
-
-    /* ══════════════════════════════════════════════════
-    NOTIFICATIONS  (5-min warning + on-time alert)
-    ══════════════════════════════════════════════════ */
-
-    // Register a Service Worker (blob URL) for background notifications
-    if ('serviceWorker' in navigator) {
-      const swCode = `
-self.addEventListener('message', e => {
-  if (e.data && e.data.type === 'SHOW_NOTIF') {
-    self.registration.showNotification(e.data.title, {
-      body: e.data.body,
-      icon: e.data.icon || '/favicon.ico',
-      tag:  e.data.tag,
-      requireInteraction: false,
-      vibrate: [200, 100, 200]
-    });
-  }
-});
-self.addEventListener('notificationclick', e => {
-  e.notification.close();
-  e.waitUntil(clients.matchAll({type:'window'}).then(cs => {
-    if (cs.length) cs[0].focus(); else clients.openWindow('/');
-  }));
-});`;
-      const swBlob = new Blob([swCode], {type:'text/javascript'});
-      navigator.serviceWorker.register(URL.createObjectURL(swBlob))
-        .then(reg => { window._swReg = reg; })
-        .catch(() => {});
-    }
-
-    // Show a native notification (via SW if available, else direct API)
-    function _showNotif(title, body, tag) {
-      if (Notification.permission !== 'granted') return;
-      const icon = 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✅</text></svg>';
-      if (window._swReg && window._swReg.active) {
-        window._swReg.active.postMessage({type:'SHOW_NOTIF', title, body, tag, icon});
-      } else {
-        new Notification(title, {body, tag, icon});
-      }
-    }
-
-    // Check all tasks and fire notifications if needed
-    function checkTaskNotifications() {
-      if (!_notifEnabled || Notification.permission !== 'granted') return;
-      const now    = new Date();
-      const fiveMs = 5 * 60 * 1000;
-      const window = 35_000;  // ±35s window to catch the scheduler tick
-
-      // Remove fired keys for completed/missing tasks
-      Object.keys(_notifFired).forEach(key => {
-        const id = parseInt(key.split('_')[0]);
-        const t  = tasks.find(x => x.id === id);
-        if (!t || t.is_done) delete _notifFired[key];
-      });
-
-      tasks.forEach(t => {
-        if (!t.due_date || t.is_done) return;
-        const due   = new Date(t.due_date);
-        const diff  = due - now;
-        const label = t.title.length > 40 ? t.title.slice(0,37)+'...' : t.title;
-        const dueStr = due.toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
-
-        // 5-minute warning
-        const key5 = t.id + '_5min';
-        if (!_notifFired[key5] && diff > 0 && diff <= fiveMs + window && diff >= fiveMs - window) {
-          _showNotif('⏰ Due in 5 minutes!', '"' + label + '" is due at ' + dueStr, key5);
-          _notifFired[key5] = true;
-          localStorage.setItem('tf_notif_fired', JSON.stringify(_notifFired));
-        }
-
-        // On-time alert
-        const keyNow = t.id + '_ontime';
-        if (!_notifFired[keyNow] && diff > -window && diff <= window) {
-          _showNotif('🚨 Task Due Now!', '"' + label + '" was due at ' + dueStr + '. Mark it done!', keyNow);
-          _notifFired[keyNow] = true;
-          localStorage.setItem('tf_notif_fired', JSON.stringify(_notifFired));
-        }
-      });
-    }
-
-    function startNotifScheduler() {
-      stopNotifScheduler();
-      checkTaskNotifications();
-      _notifInterval = setInterval(checkTaskNotifications, 30_000);
-    }
-
-    function stopNotifScheduler() {
-      if (_notifInterval) { clearInterval(_notifInterval); _notifInterval = null; }
-    }
-
-    // Called on app load — starts scheduler silently if already permitted
-    function startNotifIfEnabled() {
-      const tog = document.getElementById('notif-tog');
-      if (!_notifEnabled) { if (tog) tog.classList.remove('on'); return; }
-      if (tog) tog.classList.add('on');
-      if (Notification.permission === 'granted') {
-        startNotifScheduler();
-      }
-      // If permission is 'default' — wait for user to toggle manually
-      // If permission is 'denied'  — silently disable
-      if (Notification.permission === 'denied') {
-        _notifEnabled = false;
-        localStorage.setItem('tf_notif', 'off');
-        if (tog) tog.classList.remove('on');
-      }
-    }
-
-    // Called when user clicks the toggle in Settings
-    async function toggleNotifications() {
-      const tog = document.getElementById('notif-tog');
-      if (_notifEnabled) {
-        _notifEnabled = false;
-        localStorage.setItem('tf_notif', 'off');
-        if (tog) tog.classList.remove('on');
-        stopNotifScheduler();
-        showToast('🔕 Notifications disabled.', 'info');
-      } else {
-        if (!('Notification' in window)) { showToast('Your browser does not support notifications.', 'error'); return; }
-        if (Notification.permission === 'denied') {
-          showToast('Notifications blocked — enable them in browser settings.', 'error'); return;
-        }
-        const perm = Notification.permission === 'granted'
-          ? 'granted'
-          : await Notification.requestPermission();
-        if (perm !== 'granted') {
-          showToast('Permission denied. Enable notifications in browser settings.', 'error'); return;
-        }
-        _notifEnabled = true;
-        localStorage.setItem('tf_notif', 'on');
-        if (tog) tog.classList.add('on');
-        startNotifScheduler();
-        showToast('🔔 Notifications enabled!', 'success');
-      }
-    }
-
-    /* ══════════════════════════════════════════════════
-    KEYBOARD SHORTCUTS
-    ══════════════════════════════════════════════════ */
-    document.addEventListener('keydown', e => {
-    if (e.key==='Escape') { closeModal(); closeDelTask(); closeLogout(); closeDelAcc(); closeEditProfile(); closeCropper(); }
-    if ((e.ctrlKey||e.metaKey)&&e.key==='k') { e.preventDefault(); document.getElementById('search-inp').focus(); }
-    if ((e.ctrlKey||e.metaKey)&&e.key==='n') { e.preventDefault(); openModal(); }
-    });
-    document.getElementById('li-p').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-    document.getElementById('li-u').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('li-p').focus(); });
+        applyDark();
+        if (token) showApp();
     </script>
-    </body>
-    </html>
+</body>
+</html>
