@@ -5,6 +5,7 @@
 # Run with:  python app.py
 # =============================================================================
 
+
 from flask import Flask, make_response
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -63,6 +64,7 @@ def options_handler(path):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
     return response, 200
+
 
 # ── Register blueprints ───────────────────────────────────────────────────────
 app.register_blueprint(auth_bp)
