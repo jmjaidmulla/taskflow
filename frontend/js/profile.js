@@ -408,6 +408,7 @@ function cropWheel(e) {
     sl.value = v; setZoom(v);
 }
 
+
 function applyCrop() {
     const canvas = document.createElement('canvas');
     const OUT = 300; canvas.width = OUT; canvas.height = OUT;

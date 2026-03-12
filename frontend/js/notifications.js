@@ -4,6 +4,7 @@
 // ============================================================
 
 
+
 // ── Register a Service Worker via blob URL ────────────────
 // This lets notifications appear even when the tab is not focused.
 if ('serviceWorker' in navigator) {

@@ -173,6 +173,7 @@ document.addEventListener('keydown', e => {
     }
 });
 
+
 // Enter key shortcuts on the login form
 document.getElementById('li-p').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 document.getElementById('li-u').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('li-p').focus(); });

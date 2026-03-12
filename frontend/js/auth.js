@@ -198,6 +198,7 @@ async function fpSendOtp(isResend = false) {
     } catch(e) { document.getElementById('fp-err1').textContent = e.message; }
 }
 
+
 function fpStartTimer() {
     clearInterval(_fpTimer);
     let s = 60;
@@ -253,6 +254,7 @@ async function fpVerifyOtp() {
     }
 }
 
+
 async function fpResetPass() {
     const np  = document.getElementById('fp-np').value;
     const cp  = document.getElementById('fp-cp').value;
@@ -274,6 +276,7 @@ async function fpResetPass() {
         setTimeout(() => fpShow(0), 2000);
     } catch(e) { err.textContent = e.message; }
 }
+
 
 
 // ── Forgot Username — 3-step flow ─────────────────────────
