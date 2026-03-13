@@ -6,12 +6,12 @@
 # =============================================================================
 
 
-from flask import Flask, make_response
-from flask_cors import CORS
-from flask_jwt_extended import JWTManager
-from datetime import timedelta
+from flask import Flask, make_response 
+from flask_cors import CORS # (Cross Origin Resource Sharing)
+from flask_jwt_extended import JWTManager # Verify the identity of the user with after login
+from datetime import timedelta  # For setting JWT token expiration time
 
-from database import init_db
+from database import init_db 
 
 # ── Import route blueprints ───────────────────────────────────────────────────
 from routes.auth_routes    import auth_bp

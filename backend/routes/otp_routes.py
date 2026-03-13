@@ -8,9 +8,9 @@
 
 import re
 from flask import Blueprint, request, jsonify
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash    # For hashing passwords
 from database import get_connection
-from utils.otp_helper import (
+from utils.otp_helper import (  
     make_otp, send_sms,
     store_otp, verify_otp, consume_otp,
     issue_reset_token, verify_reset_token, consume_reset_token,
@@ -19,14 +19,19 @@ from utils.otp_helper import (
 otp_bp = Blueprint("otp", __name__)
 
 
+
 # =============================================================================
 # REGISTER WITH OTP
 # =============================================================================
 
-@otp_bp.route("/api/register/send-otp", methods=["POST"])
+
+
+##-------  Send OTP and store registration data -------##
+
+@otp_bp.route("/api/register/send-otp", methods=["POST"])   # Send OTP for registration
 def reg_send_otp():
     """
-    Step 1: Validate fields, check for duplicates, send OTP to mobile.
+    Step 1: Validate fields, check for duplicates, send OTP to mobile.  
     Body: { username, mobile, password }
     """
     data     = request.json or {}
@@ -45,8 +50,8 @@ def reg_send_otp():
         return jsonify({"error": "Password must be at least 4 characters"}), 400
 
     # Check for existing username or mobile before sending SMS
-    conn   = get_connection()
-    cursor = conn.cursor()
+    conn   = get_connection()   # Open DB
+    cursor = conn.cursor()  # Create cursor for DB operations
     cursor.execute("SELECT id FROM users WHERE username=?", (username,))
     if cursor.fetchone():
         conn.close()
@@ -69,10 +74,14 @@ def reg_send_otp():
         return jsonify({"message": "OTP ready", "dev": True}), 200
 
     print(f"[REG OTP] Sent OTP to {mobile}")
-    return jsonify({"message": "OTP sent to your mobile number"}), 200
+    return jsonify({"message": "OTP sent to your mobile number"}), 200  # OTP sent successfully
 
 
-@otp_bp.route("/api/register/verify-otp", methods=["POST"])
+
+
+##-------  Verify OTP and create account -------##
+
+@otp_bp.route("/api/register/verify-otp", methods=["POST"]) # Verify OTP and create account
 def reg_verify_otp():
     """
     Step 2: Verify OTP and create the account.
@@ -91,24 +100,26 @@ def reg_verify_otp():
     consume_otp("reg_" + mobile)
 
     # Re-check uniqueness (guard against race condition)
-    conn   = get_connection()
+    conn   = get_connection()   # Open DB
     cursor = conn.cursor()
     cursor.execute("SELECT id FROM users WHERE username=?", (username,))
     if cursor.fetchone():
-        conn.close()
+        conn.close()    
         return jsonify({"error": "Username was just taken. Go back and choose another."}), 400
     cursor.execute("SELECT id FROM users WHERE mobile=?", (mobile,))
     if cursor.fetchone():
         conn.close()
         return jsonify({"error": "Mobile number was just registered."}), 400
 
-    try:
-        cursor.execute(
+
+    try:    # Create the user account in DB
+        cursor.execute( 
             "INSERT INTO users (username, display_name, password, mobile) VALUES (?,?,?,?)",
             (username, username, generate_password_hash(password), mobile)
         )
-        conn.commit()
-    except Exception as e:
+        conn.commit()   # Save changes to DB
+
+    except Exception as e:  # Handle DB errors
         conn.close()
         return jsonify({"error": "Account creation failed: " + str(e)}), 400
     conn.close()

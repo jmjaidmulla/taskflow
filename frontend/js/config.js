@@ -6,30 +6,35 @@
 const API = 'http://127.0.0.1:5000/api';
 
 // ── Auth state ──────────────────────────────────────────
-let token      = localStorage.getItem('tf_token')   || null;
-let curUser    = localStorage.getItem('tf_user')    || null;
-let curDisplay = localStorage.getItem('tf_display') || null;
-let curMobile  = localStorage.getItem('tf_mobile')  || null;
-let curImg     = localStorage.getItem('tf_img')     || null;
+let token      = localStorage.getItem('tf_token')   || null;    // JWT authentication token
+let curUser    = localStorage.getItem('tf_user')    || null;    // Username
+let curDisplay = localStorage.getItem('tf_display') || null;    // Display name
+let curMobile  = localStorage.getItem('tf_mobile')  || null;    // Mobile number
+let curImg     = localStorage.getItem('tf_img')     || null;    // Profile image URL
+
 
 // ── Task list state ──────────────────────────────────────
-let tasks = [], editingId = null, deleteTaskId = null;
-let selPri = 'high', curFilter = 'all', curCat = '', curSort = '', searchQ = '';
+let tasks = [], editingId = null, deleteTaskId = null;  
+let selPri = 'high', curFilter = 'all', curCat = '', curSort = '', searchQ = '';    //
+
 
 // ── UI state ─────────────────────────────────────────────
-let darkMode = localStorage.getItem('tf_dark') === 'true';
+let darkMode = localStorage.getItem('tf_dark') === 'true';  // Dark mode state
+
 
 // ── Notification state ───────────────────────────────────
 let _notifEnabled  = localStorage.getItem('tf_notif') !== 'off';
 let _notifInterval = null;
 let _notifFired    = JSON.parse(localStorage.getItem('tf_notif_fired') || '{}');
 
+
 // ── Image cropper state ──────────────────────────────────
-let cropImgSrc = null, cropX = 80, cropY = 60, cropW = 160, cropH = 160;
-let cropImgX = 0, cropImgY = 0, cropScale = 1, _drag = null;
+let cropImgSrc = null, cropX = 80, cropY = 60, cropW = 160, cropH = 160;    // Crop box position and size 
+let cropImgX = 0, cropImgY = 0, cropScale = 1, _drag = null;    
+
 
 // ── Profile pending image ────────────────────────────────
-let pendingImg = null;
+let pendingImg = null;  // Newly selected profile image, waiting for cropper
 
 // ── Helper: persist auth state to localStorage ───────────
 function saveLocal() {
