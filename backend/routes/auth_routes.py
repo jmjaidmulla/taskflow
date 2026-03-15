@@ -3,7 +3,7 @@
 # Handles: /api/login, /api/register (legacy direct register)
 # =============================================================================
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify 
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from database import get_connection
@@ -16,7 +16,7 @@ def login():
     """
     POST /api/login
     Body: { "username": "...", "password": "..." }
-    Returns: JWT access token + user profile fields
+    Returns: JWT access token + user profile fields 
     """
     data = request.json
     if not data:

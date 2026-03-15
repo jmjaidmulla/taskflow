@@ -23,7 +23,7 @@ def init_db():
     Create tables and run migrations.
     Safe to call on every startup — uses IF NOT EXISTS.
     """
-    conn   = get_connection()
+    conn   = get_connection() # Open DB
     cursor = conn.cursor()
 
     # ── Users table ───────────────────────────────────────────────────────────

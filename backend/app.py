@@ -8,7 +8,7 @@
 
 from flask import Flask, make_response 
 from flask_cors import CORS # (Cross Origin Resource Sharing)
-from flask_jwt_extended import JWTManager # Verify the identity of the user with after login
+from flask_jwt_extended import JWTManager # Verify the identity of the user after login
 from datetime import timedelta  # For setting JWT token expiration time
 
 from database import init_db 
@@ -28,7 +28,7 @@ app.config["JWT_SECRET_KEY"]           = "super-secret-taskflow-key-2024"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=30)
 app.config["JWT_ALGORITHM"]            = "HS256"
 app.config["JWT_TOKEN_LOCATION"]       = ["headers"]
-app.config["JWT_HEADER_NAME"]          = "Authorization"
+app.config["JWT_HEADER_NAME"]          = "Authorization" 
 app.config["JWT_HEADER_TYPE"]          = "Bearer"
 
 jwt = JWTManager(app)
@@ -37,6 +37,7 @@ jwt = JWTManager(app)
 from flask import jsonify
 
 @jwt.unauthorized_loader
+
 def unauthorized_callback(error):
     return jsonify({"error": "Missing or invalid token"}), 401
 
