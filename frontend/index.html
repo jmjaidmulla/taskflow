@@ -25,11 +25,13 @@
         <div class="auth-logo">✅</div>
         <div class="auth-name">Task<span>Manager</span></div>
         </div>
+
         <div class="auth-tag">Your productivity, beautifully organised.</div>
         <div class="auth-tabs">
         <div class="auth-tab active" onclick="switchTab('login')">Sign In</div>
         <div class="auth-tab"       onclick="switchTab('register')">Create Account</div>
         </div>
+
         <div class="auth-form active" id="login-form">
         <div><label class="fl">Username</label>
             <div class="fw"><span class="fi">👤</span><input class="finput" type="text" id="li-u" placeholder="Your username"/></div></div>
@@ -170,6 +172,7 @@
             <div class="auth-err" id="rg-err"></div>
             <button class="auth-btn" onclick="rgSendOtp()">Send OTP →</button>
           </div><!-- /rg-s1 -->
+
           <!-- Step 2: Verify OTP -->
           <div class="rg-step" id="rg-s2">
             <div style="text-align:center;padding:4px 0 2px">
@@ -199,6 +202,7 @@
     </div>
     </div>
 
+
     <!-- ══════════ APP ═══════════════════════════════════════════ -->
     <div id="app">
     <aside class="sidebar">
@@ -208,6 +212,7 @@
             <div class="sb-logo-txt">Task<span>Manager</span></div>
         </div>
         </div>
+
         <div class="sb-sec">
         <div class="sb-lbl">Menu</div>
         <div class="nav-item active" id="n-tasks"   onclick="goView('tasks',this)"><span class="nav-icon">📋</span>All Tasks<span class="nav-badge" id="b-all">0</span></div>
@@ -215,18 +220,21 @@
         <div class="nav-item" id="n-pending"        onclick="goView('tasks',this);setFilter('pending')"><span class="nav-icon">⏳</span>Pending<span class="nav-badge" id="b-pend">0</span></div>
         <div class="nav-item" id="n-done"           onclick="goView('tasks',this);setFilter('done')"><span class="nav-icon">✅</span>Completed<span class="nav-badge" id="b-done">0</span></div>
         </div>
+
         <div class="sb-sec">
         <div class="sb-lbl">Categories</div>
         <div class="nav-item" onclick="goView('tasks',document.getElementById('n-tasks'));setCat('work')"><span class="nav-icon">💼</span>Work</div>
         <div class="nav-item" onclick="goView('tasks',document.getElementById('n-tasks'));setCat('personal')"><span class="nav-icon">🏠</span>Personal</div>
         <div class="nav-item" onclick="goView('tasks',document.getElementById('n-tasks'));setCat('study')"><span class="nav-icon">📚</span>Study</div>
         </div>
+
         <div class="sb-sec">
         <div class="sb-lbl">Views</div>
         <div class="nav-item" id="n-overview"   onclick="goView('overview',this)"><span class="nav-icon">📊</span>Overview</div>
         <div class="nav-item" id="n-categories" onclick="goView('categories',this)"><span class="nav-icon">🗂️</span>Categories</div>
         <div class="nav-item" id="n-settings"   onclick="goView('settings',this)"><span class="nav-icon">⚙️</span>Settings</div>
         </div>
+        
         <div class="sb-spacer"></div>
         <div class="sb-footer">
         <div class="sb-user" onclick="goView('settings',document.getElementById('n-settings'))">
@@ -253,6 +261,7 @@
             </div>
             <button class="add-btn" onclick="openModal()">＋ Add Task</button>
         </div>
+
         <div class="filter-bar">
             <button class="f-chip on" data-f="all"     onclick="setFilter('all')">All</button>
             <button class="f-chip"    data-f="today"   onclick="setFilter('today')">Today</button>
@@ -266,13 +275,16 @@
             <option value="newest">Newest First</option>
             </select>
         </div>
+
         <div class="cat-tab-bar">
             <div class="cat-tab on" data-c=""         onclick="setCat('')">All Categories</div>
             <div class="cat-tab"    data-c="work"     onclick="setCat('work')">💼 Work</div>
             <div class="cat-tab"    data-c="personal" onclick="setCat('personal')">🏠 Personal</div>
             <div class="cat-tab"    data-c="study"    onclick="setCat('study')">📚 Study</div>
         </div>
+
         <div class="task-scroll" id="task-list"><div class="spinner"></div></div>
+
         <div class="task-footer">
             <div class="tf-stat"><div class="tf-dot" style="background:var(--amber)"></div><span id="f-pend">0</span>&nbsp;pending</div>
             <div class="tf-stat"><div class="tf-dot" style="background:var(--green)"></div><span id="f-done">0</span>&nbsp;completed</div>
@@ -291,11 +303,13 @@
             <div class="stat-card c-green" data-icon="✅"><div class="sc-label">Completed</div><div class="sc-value" id="sc-comp">—</div><div class="sc-sub">Great work!</div></div>
             <div class="stat-card c-red"   data-icon="⚠️"><div class="sc-label">Overdue</div><div class="sc-value" id="sc-over">—</div><div class="sc-sub">Action needed</div></div>
         </div>
+
         <div class="ov-bottom">
             <div class="ov-card">
             <div class="ov-card-title">Due Today<a href="#" onclick="goView('tasks',document.getElementById('n-today'));setFilter('today');return false;">View all →</a></div>
             <div id="ov-today-list"><div class="spinner"></div></div>
             </div>
+
             <div class="ov-card">
             <div class="ov-card-title">Completion Rate</div>
             <div class="ring-center">
@@ -312,6 +326,7 @@
                 </div>
             </div>
             </div>
+
         </div>
         </div>
 
@@ -328,6 +343,7 @@
         <!-- SETTINGS VIEW -->
         <div class="view" id="view-settings">
         <h2>Settings</h2>
+
         <div class="s-panel">
             <div class="s-profile-block">
             <div class="s-av" id="set-av" onclick="openEditProfile()"><div class="s-av-ov">✏️</div></div>
@@ -338,6 +354,7 @@
             <button class="add-btn" style="padding:8px 16px;font-size:12px;" onclick="openEditProfile()">✏️ Edit Profile</button>
             </div>
         </div>
+
         <div class="s-panel">
             <div class="panel-lbl">Preferences</div>
             <div class="s-row" onclick="toggleDark()">
@@ -345,12 +362,14 @@
             <div class="s-row-body"><div class="s-row-label">Dark Mode</div><div class="s-row-desc">Switch between light and dark appearance</div></div>
             <div class="s-row-right"><div class="tog" id="dark-tog"></div></div>
             </div>
+
             <div class="s-row">
             <span class="s-row-icon">🔔</span>
             <div class="s-row-body"><div class="s-row-label">Notifications</div><div class="s-row-desc">Task reminders and alerts</div></div>
             <div class="s-row-right"><div class="tog" id="notif-tog" onclick="event.stopPropagation();toggleNotifications()"></div></div>
             </div>
         </div>
+
         <div class="s-panel">
             <div class="panel-lbl">Account</div>
             <div class="s-row danger" onclick="openDelAcc()">
@@ -358,6 +377,7 @@
             <div class="s-row-body"><div class="s-row-label">Delete Account</div><div class="s-row-desc">Permanently delete your account and all tasks</div></div>
             <div class="s-row-right">›</div>
             </div>
+
             <div class="s-row danger" onclick="openLogout()">
             <span class="s-row-icon">🚪</span>
             <div class="s-row-body"><div class="s-row-label">Log Out</div><div class="s-row-desc">Sign out of your account</div></div>
@@ -378,12 +398,14 @@
         <div><div class="modal-ttl" id="modal-ttl">Add New Task</div><div class="modal-sub">Fill in the details below</div></div>
         <div class="modal-x" onclick="closeModal()">×</div>
         </div>
+
         <div class="fg"><label>Task Title <span class="req">*</span></label><input type="text" id="t-title" placeholder="e.g. Submit assignment"/><div class="fg-err" id="t-title-err"></div></div>
         <div class="fg"><label>Description</label><textarea id="t-desc" placeholder="Optional details…"></textarea></div>
         <div class="fg-row">
         <div class="fg"><label>Category</label><select id="t-cat"><option value="work">💼 Work</option><option value="personal">🏠 Personal</option><option value="study">📚 Study</option></select></div>
         <div class="fg"><label>Due Date & Time <span style="color:#DC2626">*</span></label><input type="datetime-local" id="t-date"/><div class="fg-err" id="t-date-err" style="font-size:12px;color:#DC2626;min-height:14px;margin-top:3px"></div></div>
         </div>
+
         <div class="fg"><label>Priority</label>
         <div class="pri-btns">
             <button class="pri-btn sel" data-p="high"   onclick="setPri('high')">🔴 High</button>
@@ -554,6 +576,7 @@
          5. notifications.js — push notifications
          6. ui.js       — navigation, dark mode, helpers, keyboard shortcuts (last)
     -->
+         
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/tasks.js"></script>
