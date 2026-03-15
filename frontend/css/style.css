@@ -128,7 +128,7 @@
     .filter-bar{background:var(--card);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
     .f-chip{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);color:var(--ink2);background:var(--card);transition:all .15s;font-family:'Sora',sans-serif;}
     .f-chip:hover{border-color:var(--brand);color:var(--brand);}
-    .f-chip.on{background:var(--sb-act);color:#fff;border-color:var(--ink);}
+    .f-chip.on{background:#0f172a;color:#fff;border-color:var(--ink);}
     .f-chip.on.today{background:var(--amber);border-color:var(--amber);}
     .f-chip.on.pend{background:var(--brand);border-color:var(--brand);}
     .f-chip.on.done{background:var(--green);border-color:var(--green);}

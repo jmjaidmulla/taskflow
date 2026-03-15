@@ -49,6 +49,7 @@ def reg_send_otp():
     if len(password) < 4:
         return jsonify({"error": "Password must be at least 4 characters"}), 400
 
+
     # Check for existing username or mobile before sending SMS
     conn   = get_connection()   # Open DB
     cursor = conn.cursor()  # Create cursor for DB operations
@@ -164,6 +165,7 @@ def fp_send_otp():
     print(f"[FP OTP] Sent OTP to {mobile}")
     return jsonify({"message": "OTP sent to your mobile number"}), 200
 
+# Verify OTP and reset password.
 
 @otp_bp.route("/api/forgot-password/verify-otp", methods=["POST"])
 def fp_verify_otp():
@@ -186,6 +188,8 @@ def fp_verify_otp():
     return jsonify({"message": "OTP verified", "reset_token": reset_token}), 200
 
 
+
+
 @otp_bp.route("/api/forgot-password/reset", methods=["POST"])
 def fp_reset_password():
     """
@@ -201,9 +205,9 @@ def fp_reset_password():
     if len(new_password) < 4:
         return jsonify({"error": "Password must be at least 4 characters"}), 400
 
-    ok, err, mobile = verify_reset_token(reset_token)
+    ok, err, mobile = verify_reset_token(reset_token) # Verify the reset token and get the associated mobile number.
     if not ok:
-        return jsonify({"error": err}), 400
+        return jsonify({"error": err}), 400 
 
     conn   = get_connection()
     cursor = conn.cursor()
@@ -254,7 +258,10 @@ def fu_send_otp():
 
     print(f"[FU OTP] Sent OTP to {mobile}")
     return jsonify({"message": "OTP sent to your mobile number"}), 200
+ 
 
+ 
+# Verify OTP and return the username.
 
 @otp_bp.route("/api/forgot-username/verify-otp", methods=["POST"])
 def fu_verify_otp():

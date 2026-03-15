@@ -39,6 +39,9 @@ def get_profile():
     })
 
 
+
+# Update profile fields. All fields optional.
+
 @profile_bp.route("/api/profile", methods=["PUT"])
 @jwt_required()
 def update_profile():
@@ -74,6 +77,7 @@ def update_profile():
         if len(new_username) < 3 or not re.match(r"^[a-zA-Z0-9_]+$", new_username):
             conn.close()
             return jsonify({"error": "Username: min 3 chars, letters/numbers/underscores only"}), 400
+            
         cursor.execute("SELECT id FROM users WHERE username=? AND id!=?", (new_username, user_id))
         if cursor.fetchone():
             conn.close()
