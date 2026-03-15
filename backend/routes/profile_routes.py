@@ -122,7 +122,7 @@ def update_profile():
         if profile_image != "" and not profile_image.startswith("data:image/"):
             conn.close()
             return jsonify({"error": "Invalid image format"}), 400
-        if len(profile_image) > 3_000_000:
+        if len(profile_image) > 3_000_000: 
             conn.close()
             return jsonify({"error": "Image too large. Max ~2MB."}), 400
         updates.append("profile_image=?"); params.append(profile_image)
@@ -148,7 +148,9 @@ def update_profile():
     })
 
 
-@profile_bp.route("/api/account", methods=["DELETE"])
+# delete account permanently and all associated tasks. Requires password confirmation.
+
+@profile_bp.route("/api/account", methods=["DELETE"]) # Delete account route
 @jwt_required()
 def delete_account():
     """
@@ -188,8 +190,8 @@ def delete_account():
 # Two-step: send OTP → verify OTP (which also saves the new mobile in the DB)
 # =============================================================================
 
-import random
-import time
+import random # For generating OTPs
+import time # For OTP expiration timing
 
 _mob_otp_store = {}   # "uid_mobile" → { otp, expires_at }
 
@@ -234,6 +236,7 @@ def profile_mobile_send_otp():
 
     print(f"[MOB OTP] Sent to {mobile}")
     return jsonify({"message": "OTP sent to your mobile number"}), 200
+
 
 
 @profile_bp.route("/api/profile/mobile/verify-otp", methods=["POST"])
