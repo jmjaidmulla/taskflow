@@ -5,29 +5,89 @@ A full-stack task management app — Flask REST API + vanilla JS frontend.
 ## Project Structure
 
 ```
-TaskManager/
-├── Frontend/               ← Open index.html in browser
-│   ├── index.html          ← Main HTML (structure only)
-│   ├── css/
-│   │   └── style.css       ← All styles (16 sections)
-│   └── js/
-│       ├── config.js       ← API URL + global state variables
-│       ├── auth.js         ← Login, Register, Forgot Password/Username
-│       ├── tasks.js        ← Task CRUD, filters, search, stats, categories
-│       ├── profile.js      ← Edit profile + image cropper
-│       ├── notifications.js← Push notifications (Service Worker)
-│       └── ui.js           ← Navigation, dark mode, helpers, keyboard shortcuts
+TaskFlow/
+├── .postman/                     ← Stores API collections for testing with Postman
 │
-└── Backend/                ← Run with: python app.py
-    ├── app.py              ← Flask entry point — registers all blueprints
-    ├── database.py         ← SQLite setup + migrations
-    ├── routes/
-    │   ├── auth_routes.py      ← POST /api/login
-    │   ├── task_routes.py      ← CRUD + stats for /api/tasks
-    │   ├── profile_routes.py   ← GET/PUT /api/profile, DELETE /api/account
-    │   └── otp_routes.py       ← Register OTP, Forgot Password, Forgot Username
-    └── utils/
-        └── otp_helper.py       ← OTP store, SMS sender (Fast2SMS), reset tokens
+├── .venv/                        ← Python virtual environment for project dependencies
+│
+├── .vscode/                      ← VS Code workspace settings and configuration
+│
+├── backend/                      ← Backend server (Run using: python app.py)
+│   ├── __pycache__/              ← Python compiled cache files (auto-generated)
+│   │
+│   ├── routes/                   ← API route modules (Flask Blueprints)
+│   │   ├── __pycache__/          ← Compiled Python cache
+│   │   ├── auth_routes.py        ← Authentication APIs
+│   │   │                             POST /api/login
+│   │   │                             POST /api/register
+│   │   │                             Handles user authentication
+│   │   │
+│   │   ├── otp_routes.py         ← OTP verification APIs
+│   │   │                             Send OTP
+│   │   │                             Verify OTP
+│   │   │                             Password reset OTP
+│   │   │
+│   │   ├── profile_routes.py     ← Profile management APIs
+│   │   │                             GET /api/profile
+│   │   │                             PUT /api/profile
+│   │   │                             Update user details
+│   │   │
+│   │   └── task_routes.py        ← Task management APIs
+│   │                                 GET /api/tasks
+│   │                                 POST /api/tasks
+│   │                                 PUT /api/tasks/{id}
+│   │                                 DELETE /api/tasks/{id}
+│   │
+│   ├── utils/                    ← Utility/helper functions
+│   │   ├── __pycache__/          ← Python compiled cache
+│   │   └── otp_helper.py         ← OTP generation and verification helper functions
+│   │
+│   ├── venv/                     ← Local backend virtual environment (optional)
+│   │
+│   ├── app.py                    ← Main Flask application entry point
+│   │                                 Initializes Flask server
+│   │                                 Registers API routes
+│   │                                 Enables CORS
+│   │
+│   ├── database.py               ← Database connection and query helper functions
+│   │
+│   └── database.db               ← SQLite database file storing users and tasks
+│
+├── frontend/                     ← Frontend user interface (Open index.html)
+│   ├── css/
+│   │   └── style.css             ← All UI styling, layout design, and responsiveness
+│   │
+│   ├── js/
+│   │   ├── auth.js               ← Authentication logic
+│   │   │                             Login
+│   │   │                             Register
+│   │   │                             Logout
+│   │   │
+│   │   ├── config.js             ← Backend API URL and global configuration variables
+│   │   │
+│   │   ├── notifications.js      ← Notification and reminder system
+│   │   │                             Task deadline alerts
+│   │   │
+│   │   ├── profile.js            ← Profile management functions
+│   │   │                             Load profile
+│   │   │                             Update user information
+│   │   │
+│   │   ├── tasks.js              ← Task management logic
+│   │   │                             Create task
+│   │   │                             Edit task
+│   │   │                             Delete task
+│   │   │                             Mark task complete
+│   │   │
+│   │   └── ui.js                 ← UI interaction controller
+│   │                                 Navigation handling
+│   │                                 Theme toggle
+│   │                                 UI utilities
+│   │
+│   └── index.html                ← Main application interface (Task dashboard)
+│
+├── postman/                      ← Additional API testing files
+│
+└── README.md                     ← Project documentation
 ```
 
 ## Setup
