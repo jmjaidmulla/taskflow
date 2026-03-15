@@ -40,7 +40,8 @@ def get_profile():
 
 
 
-# Update profile fields. All fields optional.
+
+# Update profile fields. optional.
 
 @profile_bp.route("/api/profile", methods=["PUT"])
 @jwt_required()
@@ -71,6 +72,7 @@ def update_profile():
     updates = []
     params  = []
 
+
     # ── Username ─────────────────────────────────────────────────────────────
     new_username = data.get("username", "").strip()
     if new_username:
@@ -84,10 +86,12 @@ def update_profile():
             return jsonify({"error": "Username already taken"}), 400
         updates.append("username=?"); params.append(new_username)
 
+
     # ── Display name ──────────────────────────────────────────────────────────
     display_name = data.get("display_name", "").strip()
     if display_name:
         updates.append("display_name=?"); params.append(display_name)
+
 
     # ── Mobile ────────────────────────────────────────────────────────────────
     mobile = data.get("mobile", "").strip()
@@ -100,6 +104,7 @@ def update_profile():
             conn.close()
             return jsonify({"error": "Mobile already used by another account"}), 400
         updates.append("mobile=?"); params.append(mobile)
+
 
     # ── Password change ───────────────────────────────────────────────────────
     new_password = data.get("new_password", "")
@@ -115,6 +120,7 @@ def update_profile():
             conn.close()
             return jsonify({"error": "New password must be at least 4 characters"}), 400
         updates.append("password=?"); params.append(generate_password_hash(new_password))
+
 
     # ── Profile image ─────────────────────────────────────────────────────────
     profile_image = data.get("profile_image", None)
@@ -146,6 +152,8 @@ def update_profile():
         "mobile":        updated["mobile"]        or "",
         "profile_image": updated["profile_image"] or "",
     })
+
+
 
 
 # delete account permanently and all associated tasks. Requires password confirmation.
@@ -185,6 +193,8 @@ def delete_account():
     return jsonify({"message": "Account permanently deleted"})
 
 
+
+
 # =============================================================================
 # MOBILE OTP VERIFICATION
 # Two-step: send OTP → verify OTP (which also saves the new mobile in the DB)
@@ -195,6 +205,9 @@ import time # For OTP expiration timing
 
 _mob_otp_store = {}   # "uid_mobile" → { otp, expires_at }
 
+
+
+# OTP generate and sending. Validates number is not already taken.
 
 @profile_bp.route("/api/profile/mobile/send-otp", methods=["POST"])
 @jwt_required()
@@ -238,6 +251,8 @@ def profile_mobile_send_otp():
     return jsonify({"message": "OTP sent to your mobile number"}), 200
 
 
+
+# Verify OTP and save new mobile in DB
 
 @profile_bp.route("/api/profile/mobile/verify-otp", methods=["POST"])
 @jwt_required()

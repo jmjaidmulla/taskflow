@@ -3,20 +3,20 @@
 # Shared OTP utilities used by register, forgot-password, forgot-username flows
 # =============================================================================
 
-import random
+import random # For Random OTP
 import time
-import secrets
-import urllib.request
-import json
+import secrets  # For secure token generation (password reset sessions)
+import urllib.request   # For sending OTP via Fast2SMS API
+import json 
 
 # ── In-memory stores (reset on server restart) ────────────────────────────────
-# For production, replace these with Redis or a DB table.
-_otp_store   = {}   # key  → { otp, expires_at, ...extra fields }
+
+_otp_store   = {}   # otp_key → { otp, expires_at, **extra }
 _token_store = {}   # reset_token → { mobile, expires_at }
 
 # ── Fast2SMS API key ──────────────────────────────────────────────────────────
-# Get a free key at https://fast2sms.com → Dev API
-# Paste your key below:
+# https://fast2sms.com 
+
 FAST2SMS_KEY = "fV9zBZdprNoHDvYjxlMLhRSyWPA4gqc0uk3wETa1isFX2t7bGUDSRJnM4ce2tVbdo6WPaTOxliK3zmXp"
 
 
@@ -25,28 +25,30 @@ def make_otp() -> str:
     return str(random.randint(100000, 999999))
 
 
+# Sends an OTP via Fast2SMS. Returns (True, None) on success, (False, error_message) on failure.
+
 def send_sms(mobile: str, otp: str) -> tuple[bool, str | None]:
     """
     Send an OTP via Fast2SMS.
     Returns (True, None) on success, (False, error_message) on failure.
     """
-    payload = json.dumps({
+    payload = json.dumps({ # Convert dict to JSON string and then bytes
         "route": "otp",
         "variables_values": str(otp),
         "numbers": mobile,
         "flash": 0
     }).encode()
 
-    req = urllib.request.Request(
+    req = urllib.request.Request( # Create a POST request to Fast2SMS API
         "https://www.fast2sms.com/dev/bulkV2",
         data=payload,
         method="POST"
     )
-    req.add_header("authorization", FAST2SMS_KEY)
-    req.add_header("Content-Type",  "application/json")
+    req.add_header("authorization", FAST2SMS_KEY)   # Add API key to authenticate
+    req.add_header("Content-Type",  "application/json")     # Set content type to JSON
 
     try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        with urllib.request.urlopen(req, timeout=10) as resp: # Send the request and wait for response (with timeout)
             r = json.loads(resp.read())
             if r.get("return") is True:
                 return True, None
@@ -54,7 +56,7 @@ def send_sms(mobile: str, otp: str) -> tuple[bool, str | None]:
     except Exception as e:
         return False, str(e)
 
-
+# OTP storage
 def store_otp(key: str, otp: str, ttl_seconds: int = 600, **extra):
     """
     Save an OTP in the in-memory store.
@@ -68,7 +70,7 @@ def store_otp(key: str, otp: str, ttl_seconds: int = 600, **extra):
         **extra
     }
 
-
+# OTP verification 
 def verify_otp(key: str, otp: str) -> tuple[bool, str | None, dict | None]:
     """
     Check an OTP against the store.
@@ -85,12 +87,12 @@ def verify_otp(key: str, otp: str) -> tuple[bool, str | None, dict | None]:
         return False, "Incorrect OTP. Please try again.", None
     return True, None, stored
 
-
+# OTP consumption
 def consume_otp(key: str):
     """Delete an OTP from the store after successful use."""
     _otp_store.pop(key, None)
 
-
+# Password reset token generation 
 def issue_reset_token(mobile: str, ttl_seconds: int = 300) -> str:
     """
     Issue a one-time password-reset token valid for ttl_seconds (default 5 min).
@@ -103,7 +105,7 @@ def issue_reset_token(mobile: str, ttl_seconds: int = 300) -> str:
     }
     return token
 
-
+# Password reset token verification. Returns
 def verify_reset_token(token: str) -> tuple[bool, str | None, str | None]:
     """
     Validate a reset token.
@@ -118,7 +120,7 @@ def verify_reset_token(token: str) -> tuple[bool, str | None, str | None]:
         return False, "Session expired. Please start over.", None
     return True, None, stored["mobile"]
 
-
+# Password reset token consumption
 def consume_reset_token(token: str):
     """Delete a reset token after successful use."""
     _token_store.pop(token, None)
