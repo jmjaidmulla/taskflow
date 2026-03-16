@@ -147,6 +147,6 @@ to the Flask terminal instead so you can still test locally.
 
 
 <p align="center">
-  <img src="Demo_Videos\Screenshot 2026-03-16 135646.png" width="500"/>
+  <img src="Demo_Videos\Screenshot 2026-03-16 135646.png" width="1000"/>
 </p>
 
