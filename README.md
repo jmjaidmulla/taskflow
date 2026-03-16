@@ -144,9 +144,22 @@ to the Flask terminal instead so you can still test locally.
 | DELETE | /api/account | ✓ JWT | Delete account |
 
 
+## Demo Screenshots
 
 
-<p align="center">
-  <img src="Demo_Videos\Screenshot 2026-03-16 135646.png" width="1000"/>
-</p>
 
+
+
+## Demo Videos
+
+### 1) Create Account & Login
+▶  https://raw.githubusercontent.com/jmjaidmulla/taskflow/main/Demo_Videos/1_Create_Account_Login.mp4
+
+### 2) Add Task, Overview and Categories
+▶  https://github.com/jmjaidmulla/taskflow/raw/refs/heads/main/Demo_Videos/1_Create_Account_Login.mp4
+
+### 3) Edit Profile,Dark Mode and Sorting
+▶  https://github.com/jmjaidmulla/taskflow/raw/refs/heads/main/Demo_Videos/3_Edit_Profile_Sorting.mp4
+
+### 4) Forgot- Username and Password
+▶  https://github.com/jmjaidmulla/taskflow/raw/refs/heads/main/Demo_Videos/4_Forgot_Username_Password.mp4
