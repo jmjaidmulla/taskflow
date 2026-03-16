@@ -144,9 +144,32 @@ to the Flask terminal instead so you can still test locally.
 | DELETE | /api/account | ✓ JWT | Delete account |
 
 
+
 ## Demo Screenshots
 
+<h3>Create Account and Login</h3>
+<p align="Left">
+  <img src="Images\Create_Account.png" width="500"/>
+  <img src="Images\Login.png" width="500"/>
+</p></br>
 
+<h3>All Tasks and Overview </h3>
+<p align="Left">
+  <img src="Images\All_Task.png" width="500"/>
+  <img src="Images\Overview.png" width="500"/>
+</p></br>
+
+<h3>Categories and Settings </h3>
+<p align="Left">
+  <img src="Images\Categories.png" width="500"/>
+  <img src="Images\Setting.png" width="500"/>
+</p></br>
+
+<h3>Edit Profile and Dark Mode </h3>
+<p align="Left">
+  <img src="Images\Edit_Profile.png" width="500"/>
+  <img src="Images\Dark_Mode.png" width="500"/>
+</p></br>
 
 
 
