@@ -142,3 +142,11 @@ to the Flask terminal instead so you can still test locally.
 | GET | /api/profile | ✓ JWT | Get profile |
 | PUT | /api/profile | ✓ JWT | Update profile |
 | DELETE | /api/account | ✓ JWT | Delete account |
+
+
+
+
+<p align="center">
+  <img src="Demo_Videos\Screenshot 2026-03-16 135646.png" width="500"/>
+</p>
+
