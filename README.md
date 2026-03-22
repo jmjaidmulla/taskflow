@@ -179,7 +179,7 @@ to the Flask terminal instead so you can still test locally.
 ▶  https://raw.githubusercontent.com/jmjaidmulla/taskflow/main/Demo_Videos/1_Create_Account_Login.mp4
 
 ### 2) Add Task, Overview and Categories
-▶  https://github.com/jmjaidmulla/taskflow/raw/refs/heads/main/Demo_Videos/1_Create_Account_Login.mp4
+▶  https://github.com/jmjaidmulla/taskflow/raw/refs/heads/main/Demo_Videos/2_Add_task_Overview_Categories.mp4
 
 ### 3) Edit Profile,Dark Mode and Sorting
 ▶  https://github.com/jmjaidmulla/taskflow/raw/refs/heads/main/Demo_Videos/3_Edit_Profile_Sorting.mp4
